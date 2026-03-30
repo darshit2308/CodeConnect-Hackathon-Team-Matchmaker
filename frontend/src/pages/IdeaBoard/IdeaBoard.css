@@ -1,0 +1,91 @@
+.ib-page {
+  background: var(--bg);
+  min-height: calc(100vh - var(--nav-h));
+  padding: 40px 24px;
+}
+.ib-container {
+  max-width: 1100px; margin: 0 auto;
+}
+
+.ib-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+}
+.ib-header h2 { font-size: 32px; margin-bottom: 8px; }
+.ib-sub { font-size: 15px; color: var(--ink2); }
+
+.ib-filter-bar {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;
+}
+.chip-scroll-row {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; flex: 1;
+}
+.domain-chip {
+  padding: 8px 16px; background: white; border: 1.5px solid var(--border2); border-radius: var(--radius-pill);
+  font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;
+}
+.domain-chip:hover { border-color: var(--primary); }
+.domain-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.ib-filter-right {
+  display: flex; gap: 12px;
+}
+.ib-sort { min-width: 120px; border-radius: var(--radius-pill); padding: 10px 16px;}
+.ib-filter-right input[type=search] { border-radius: var(--radius-pill); padding: 10px 16px; }
+
+.ib-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;
+}
+
+.idea-card { display: flex; flex-direction: column; }
+.ic-top-strip { height: 12px; width: 100%; }
+.ic-top-strip[data-domain="EdTech"] { background: var(--primary); }
+.ic-top-strip[data-domain="HealthTech"] { background: var(--accent); }
+.ic-top-strip[data-domain="FinTech"] { background: var(--warning); }
+.ic-top-strip[data-domain="GreenTech"] { background: var(--success); }
+.ic-top-strip[data-domain="Social Good"] { background: var(--danger); }
+.ic-top-strip { background: var(--ink2); } /* default */
+
+.ic-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+.ic-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; font-weight: 600; }
+.ic-domain { background: var(--surface2); color: var(--primary); padding: 4px 10px; border-radius: 20px; }
+.ic-timer { padding: 4px 10px; border-radius: 20px; }
+.ic-timer.danger { background: var(--danger-soft); color: var(--danger); }
+.ic-timer.amber { background: var(--warning-soft); color: #d97706; }
+.ic-timer.green { background: var(--accent-soft); color: var(--success); }
+
+.ic-title { font-size: 18px; margin-bottom: 8px; }
+.ic-desc { font-size: 14px; color: var(--ink2); line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+.ic-skills { margin-bottom: 16px; }
+.ic-s-label { font-size: 11px; font-weight: 700; color: var(--ink3); text-transform: uppercase; display: block; margin-bottom: 8px; }
+.ic-more { font-size: 11px; color: var(--ink3); background: var(--surface2); padding: 4px 8px; border-radius: 20px; display: flex; align-items: center;}
+
+.ic-divider { height: 1px; background: var(--border2); margin: 16px 0; margin-top: auto;}
+
+.ic-footer { display: flex; justify-content: space-between; align-items: center; }
+.ic-poster { display: flex; align-items: center; gap: 8px; }
+.ic-av { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: var(--font-head); font-weight: 700; }
+.ic-p-name { font-size: 12px; font-weight: 600; font-family: var(--font-head); }
+.ic-p-time { font-size: 10px; color: var(--ink3); }
+
+.ic-actions { display: flex; gap: 8px; align-items: center; }
+.small-btn { padding: 6px 14px; font-size: 12px; background: var(--primary-soft); color: var(--primary); }
+.small-btn:hover { background: var(--primary); color: white; }
+.like-btn { cursor: pointer; border: none; background: transparent; color: var(--ink3); font-size: 13px; font-weight: 600; transition: 0.2s; }
+.like-btn.liked { color: var(--danger); }
+.like-btn:hover { color: var(--danger); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(13,13,26,0.6); backdrop-filter: blur(4px);
+  z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.modal-card {
+  background: white; border-radius: var(--radius-xl); padding: 40px; width: 100%; max-width: 560px;
+  animation: popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+
+@media (max-width: 768px) {
+  .ib-filter-bar { flex-direction: column; align-items: stretch; }
+  .ib-filter-right { justify-content: space-between; }
+}

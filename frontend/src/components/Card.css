@@ -1,0 +1,17 @@
+.app-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.app-card.no-padding {
+  padding: 0;
+}
+
+.app-card.hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
