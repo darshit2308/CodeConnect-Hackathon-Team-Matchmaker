@@ -17,8 +17,27 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // Use SSL/TLS
+  auth: { 
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS 
+  }
+});
+
+// Verify environment variables
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.error('❌ CRITICAL: EMAIL_USER or EMAIL_PASS is missing from environment variables!');
+}
+
+// Verify connection configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Nodemailer verification failed:', error.message);
+  } else {
+    console.log('✅ Mail server is ready to send OTPs');
+  }
 });
 
 const otpStorage = {};
@@ -158,8 +177,12 @@ exports.sendOtp = async (req, res) => {
     });
     return res.json({ success: true, message: 'OTP sent' });
   } catch (err) {
-    console.error('OTP err:', err);
-    return res.status(500).json({ error: 'Server error', details: err.message });
+    console.error('❌ OTP Send Error:', err);
+    return res.status(500).json({ 
+      error: 'Failed to send OTP', 
+      details: err.message,
+      code: err.code // Helps identify if it's an auth error or network error
+    });
   }
 };
 
