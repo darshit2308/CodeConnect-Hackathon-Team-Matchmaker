@@ -96,7 +96,7 @@ export default function ProfileSetup() {
           {[1,2,3,4].map(num => (
             <div key={num} className="step-wrapper">
               <div className={`step-circle ${step === num ? 'active' : ''} ${step > num ? 'completed' : ''}`}>
-                {step > num ? '✓' : num}
+                {step > num ? 'Done' : num}
               </div>
               <div className="step-label">
                 {num === 1 && 'Basic Info'}
@@ -121,7 +121,7 @@ export default function ProfileSetup() {
                 ) : (
                   <div className="avatar-preview">{userInitials}</div>
                 )}
-                <div style={{color:'var(--ink3)', marginTop:'4px'}}>📸 Upload Photo</div>
+                <div style={{color:'var(--ink3)', marginTop:'4px'}}>Upload Photo</div>
               </div>
               <div className="form-group">
                 <label>Full Name</label>
@@ -189,10 +189,10 @@ export default function ProfileSetup() {
               <p className="wiz-sub">Do you have a hackathon idea?</p>
               <div className="idea-toggles">
                 <button className={`btn ${hasIdea ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setHasIdea(true)} style={{flex:1}}>
-                  Yes, I have an idea! 💡
+                  Yes, I have an idea
                 </button>
                 <button className={`btn ${!hasIdea ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setHasIdea(false)} style={{flex:1}}>
-                  No, I'm open 🤝
+                  No, I'm open
                 </button>
               </div>
 
@@ -254,13 +254,13 @@ export default function ProfileSetup() {
           {/* Nav Buttons */}
           <div className="wizard-nav-btns mt-8 border-t pt-6" style={{marginTop:'32px', borderTop:'1px solid var(--border2)', paddingTop:'24px', display:'flex', justifyContent:'space-between'}}>
             {step > 1 ? (
-              <button className="btn btn-ghost" onClick={() => setStep(step-1)}>&larr; Back</button>
+              <button className="btn btn-ghost" onClick={() => setStep(step-1)}>Back</button>
             ) : <div></div>}
             
             {step < 4 ? (
-              <button className="btn btn-primary" onClick={() => setStep(step+1)}>Next &rarr;</button>
+              <button className="btn btn-primary" onClick={() => setStep(step+1)}>Next</button>
             ) : (
-              <button className="btn btn-primary" onClick={finishWizard}>Finish 🚀</button>
+              <button className="btn btn-primary" onClick={finishWizard}>Finish Profile</button>
             )}
           </div>
         </div>

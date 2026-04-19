@@ -160,3 +160,69 @@
   font-size: 16px;
   font-weight: 500;
 }
+
+/* Premium visual pass */
+.notif-page {
+  padding: clamp(32px, 6vw, 64px) 24px;
+  background:
+    linear-gradient(rgba(16,24,40,0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,24,40,0.032) 1px, transparent 1px),
+    var(--bg);
+  background-size: 34px 34px;
+}
+
+.notif-container {
+  max-width: 760px;
+}
+
+.notif-header {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.86);
+  box-shadow: var(--shadow-xs);
+}
+
+.notif-header h2 {
+  font-size: clamp(30px, 4vw, 42px);
+}
+
+.notif-card {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.notif-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(37,88,212,0.26);
+}
+
+.n-icon {
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.n-title {
+  font-weight: 900;
+}
+
+.empty-state {
+  border-radius: 8px;
+  border: 1px dashed var(--border2);
+  background: rgba(255,255,255,0.82);
+}
+
+@media (max-width: 640px) {
+  .notif-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notif-card {
+    padding: 18px;
+  }
+}

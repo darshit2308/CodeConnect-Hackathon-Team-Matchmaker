@@ -21,7 +21,7 @@ export default function Login() {
 
     try {
       await login(email, password);
-      showToast('Welcome back! 👋');
+      showToast('Welcome back!');
       navigate('/discover');
     } catch {
       showToast('Invalid credentials', 'error');
@@ -31,7 +31,7 @@ export default function Login() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const result = await googleLogin(credentialResponse.credential);
-      showToast('Signed in with Google! 👋');
+        showToast('Signed in with Google!');
       if (result.isNewUser) {
         navigate('/profile-setup');
       } else {
@@ -52,11 +52,11 @@ export default function Login() {
             <div>
               <h3 className="auth-quote">"The right teammate can turn a good idea into a winning project."</h3>
               <div className="auth-float-icons">
-                <div className="auth-float-icon">⚛️</div>
-                <div className="auth-float-icon">🐍</div>
-                <div className="auth-float-icon">🎨</div>
-                <div className="auth-float-icon">☁️</div>
-                <div className="auth-float-icon">🤖</div>
+                <div className="auth-float-icon">React</div>
+                <div className="auth-float-icon">Python</div>
+                <div className="auth-float-icon">Figma</div>
+                <div className="auth-float-icon">Cloud</div>
+                <div className="auth-float-icon">AI</div>
               </div>
             </div>
             <div>
@@ -88,7 +88,7 @@ export default function Login() {
         {/* Right Panel */}
         <div className="auth-right">
           <div className="auth-form-card">
-            <h2 style={{fontSize:'28px', marginBottom:'8px'}}>Welcome back 👋</h2>
+            <h2 style={{fontSize:'28px', marginBottom:'8px'}}>Welcome back</h2>
             <p style={{color:'var(--ink2)', marginBottom:'32px'}}>Sign in to find your hackathon team.</p>
 
             <div style={{display:'flex', justifyContent:'center', marginBottom: '12px'}}>
@@ -130,13 +130,13 @@ export default function Login() {
                     value={password} onChange={e => {setPassword(e.target.value); setErrorField(null);}} 
                   />
                   <span className="pw-toggle" onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                    {showPassword ? 'Hide' : 'Show'}
                   </span>
                 </div>
                 {errorField === 'password' && <span className="error-msg">Password is required</span>}
               </div>
 
-              <button type="submit" className="btn btn-primary submit-btn">Sign In &rarr;</button>
+              <button type="submit" className="btn btn-primary submit-btn">Sign In</button>
             </form>
 
             <p className="auth-bottom">

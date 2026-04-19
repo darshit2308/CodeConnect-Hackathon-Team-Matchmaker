@@ -66,7 +66,7 @@ export default function Profile() {
     try {
       await API.likeProfile(id);
       setIsLiked(true);
-      showToast('Profile liked! 💜', 'success');
+      showToast('Profile liked!', 'success');
     } catch (err) {
       console.error(err);
       showToast('Could not like profile', 'error');
@@ -154,16 +154,16 @@ export default function Profile() {
                   className={`btn ${isLiked ? 'btn-ghost liked' : 'btn-primary'}`}
                   onClick={isLiked ? handleUnlikeProfile : handleLikeProfile}
                 >
-                  {isLiked ? '💜 Liked' : '🤍 Like'}
+                  {isLiked ? 'Liked' : 'Like'}
                 </button>
-                <button className="btn btn-primary" onClick={() => navigate(`/chat?user=${profile.id}`)}>💬 Message</button>
-                <Link className="btn btn-ghost" to="/profile">← My Profile</Link>
+                <button className="btn btn-primary" onClick={() => navigate(`/chat?user=${profile.id}`)}>Message</button>
+                <Link className="btn btn-ghost" to="/profile">My Profile</Link>
               </div>
             )}
 
             {isSelf && mutualFriends.length > 0 && (
               <section className="profile-section">
-                <h4>👥 Your Mutual Friends ({mutualFriends.length})</h4>
+                <h4>Your Mutual Friends ({mutualFriends.length})</h4>
                 <div className="friends-mini-list">
                   {mutualFriends.slice(0, 5).map(friend => (
                     <Link 
@@ -185,7 +185,7 @@ export default function Profile() {
                   ))}
                   {mutualFriends.length > 5 && (
                     <Link to="/friends" className="friend-see-more">
-                      See all {mutualFriends.length} friends →
+                      See all {mutualFriends.length} friends
                     </Link>
                   )}
                 </div>
@@ -196,7 +196,7 @@ export default function Profile() {
 
         <div className="profile-right">
           <Card>
-            <h3>🔍 Find People</h3>
+            <h3>Find People</h3>
             <input
               type="search"
               className="profile-search"

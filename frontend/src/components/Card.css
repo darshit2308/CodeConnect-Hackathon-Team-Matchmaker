@@ -1,10 +1,11 @@
 .app-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   padding: 24px;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+  box-shadow: var(--shadow-xs);
 }
 
 .app-card.no-padding {
@@ -12,6 +13,7 @@
 }
 
 .app-card.hover-effect:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow);
+  transform: translateY(-3px);
+  border-color: rgba(37, 88, 212, 0.26);
+  box-shadow: var(--shadow-sm);
 }

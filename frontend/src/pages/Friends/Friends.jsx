@@ -40,19 +40,19 @@ export default function Friends() {
       <div className="friends-container">
         <div className="friends-header">
           <div>
-            <h2>👥 My Friends</h2>
-            <p className="friends-sub">People you've matched with! Both of you swiped right 💜</p>
+            <h2>My Friends</h2>
+            <p className="friends-sub">People you've matched with. Both of you swiped right.</p>
           </div>
         </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink3)' }}>
-            <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+            <div style={{ fontSize: '32px', marginBottom: '16px' }}>...</div>
             <p>Loading your matches...</p>
           </div>
         ) : mutualMatches.length === 0 ? (
           <div className="empty-state-friends">
-            <div style={{ fontSize: '64px' }}>💔</div>
+            <div style={{ fontSize: '64px' }}>0</div>
             <h3>No matches yet</h3>
             <p>Keep swiping in Discover to find teammates who also like you!</p>
             <button 
@@ -60,7 +60,7 @@ export default function Friends() {
               onClick={() => navigate('/discover')}
               style={{ marginTop: '16px' }}
             >
-              🔍 Go to Discover
+              Go to Discover
             </button>
           </div>
         ) : (
@@ -77,7 +77,7 @@ export default function Friends() {
                   >
                     {profile.initials}
                   </div>
-                  <div className="friend-match-badge">🔥 Match</div>
+                  <div className="friend-match-badge">Match</div>
                 </div>
 
                 <h3 className="friend-name">{profile.name}</h3>
@@ -98,13 +98,13 @@ export default function Friends() {
                     className="btn btn-ghost small-btn"
                     onClick={() => handleViewProfile(profile.id)}
                   >
-                    👁️ View Profile
+                    View Profile
                   </button>
                   <button 
                     className="btn btn-primary small-btn"
                     onClick={() => handleMessage(profile.id)}
                   >
-                    💬 Message
+                    Message
                   </button>
                 </div>
               </div>

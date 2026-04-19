@@ -59,7 +59,7 @@ export default function Signup() {
       if (result.isNewUser) {
         navigate('/profile-setup');
       } else {
-        showToast('Welcome back! 👋');
+        showToast('Welcome back!');
         navigate('/discover');
       }
     } catch {
@@ -77,11 +77,11 @@ export default function Signup() {
             <div>
               <h3 className="auth-quote">"Find the missing puzzle piece for your hackathon."</h3>
               <div className="auth-float-icons">
-                <div className="auth-float-icon">🚀</div>
-                <div className="auth-float-icon">💡</div>
-                <div className="auth-float-icon">🃏</div>
-                <div className="auth-float-icon">🧩</div>
-                <div className="auth-float-icon">⚡</div>
+                <div className="auth-float-icon">Pitch</div>
+                <div className="auth-float-icon">Build</div>
+                <div className="auth-float-icon">Match</div>
+                <div className="auth-float-icon">Ship</div>
+                <div className="auth-float-icon">Win</div>
               </div>
             </div>
             <div>
@@ -113,7 +113,7 @@ export default function Signup() {
         {/* Right Panel */}
         <div className="auth-right">
           <div className="auth-form-card" style={{ maxWidth: '480px' }}>
-            <h2 style={{ fontSize: '28px', marginBottom: '8px' }}>Join CodeConnect 🚀</h2>
+            <h2 style={{ fontSize: '28px', marginBottom: '8px' }}>Join CodeConnect</h2>
             <p style={{ color: 'var(--ink2)', marginBottom: '32px' }}>Create an account to get started.</p>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
@@ -163,7 +163,7 @@ export default function Signup() {
                 </div>
 
                 <button type="submit" className="btn btn-primary submit-btn" disabled={!terms} style={{ opacity: terms ? 1 : 0.5 }}>
-                  Get OTP via Email &rarr;
+                  Get OTP via Email
                 </button>
               </form>
             ) : (
@@ -174,7 +174,7 @@ export default function Signup() {
                 </div>
 
                 <button type="submit" className="btn btn-primary submit-btn">
-                  Verify & Create Account &rarr;
+                  Verify & Create Account
                 </button>
                 <button type="button" className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={() => setStep(0)}>
                   &larr; Back

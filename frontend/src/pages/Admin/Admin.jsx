@@ -18,7 +18,7 @@ export default function Admin() {
   return (
     <div className="admin-page hide-scrollbars">
       <div className="admin-header">
-        <h2>🛠️ Admin Overview</h2>
+        <h2>Admin Overview</h2>
         <div className="ah-actions">
           <button className="btn btn-ghost">Export CSV</button>
           <button className="btn btn-primary">Refresh Data</button>
@@ -27,28 +27,28 @@ export default function Admin() {
 
       <div className="admin-grid-top">
         <Card className="stat-card">
-          <div className="sc-icon text-primary bg-primary-soft">👥</div>
+          <div className="sc-icon text-primary bg-primary-soft">US</div>
           <div className="sc-data">
             <div className="sc-val">{stats.totalUsers}</div>
             <div className="sc-lbl">Total Users</div>
           </div>
         </Card>
         <Card className="stat-card">
-          <div className="sc-icon text-accent bg-accent-soft">🃏</div>
+          <div className="sc-icon text-accent bg-accent-soft">SW</div>
           <div className="sc-data">
             <div className="sc-val">{stats.totalSwipes}</div>
             <div className="sc-lbl">Total Swipes</div>
           </div>
         </Card>
         <Card className="stat-card">
-          <div className="sc-icon text-success bg-success-soft">🎉</div>
+          <div className="sc-icon text-success bg-success-soft">MA</div>
           <div className="sc-data">
             <div className="sc-val">{stats.matches}</div>
             <div className="sc-lbl">Successful Matches</div>
           </div>
         </Card>
         <Card className="stat-card">
-          <div className="sc-icon text-warning bg-warning-soft">📈</div>
+          <div className="sc-icon text-warning bg-warning-soft">RT</div>
           <div className="sc-data">
             <div className="sc-val">{stats.matchRate}</div>
             <div className="sc-lbl">Match Rate</div>

@@ -82,13 +82,13 @@ export default function TeamDashboard() {
     <div className="team-dash hide-scrollbars">
       <div className="td-header">
         <div>
-          <h2>My Team 🏆</h2>
+          <h2>My Team</h2>
           <div className="alert-pill amber mt-2">
             {mutualMatches.length} mutual match{mutualMatches.length !== 1 ? 'es' : ''} · {myProjects.length} project{myProjects.length !== 1 ? 's' : ''}
           </div>
         </div>
         <button className="btn btn-primary" onClick={() => navigate('/discover')}>
-          + Find Teammates
+          Find Teammates
         </button>
       </div>
 
@@ -134,7 +134,7 @@ export default function TeamDashboard() {
       {/* Project-wise Teams */}
       {myProjects.length > 0 && (
         <div style={{ marginBottom: '32px' }}>
-          <h3 className="mb-4">📋 My Projects & Teams</h3>
+          <h3 className="mb-4">My Projects & Teams</h3>
           {myProjects.map(project => {
             const requests = projectJoinRequests[project.id] || [];
             return (
@@ -169,7 +169,7 @@ export default function TeamDashboard() {
                           <div className="mc-name">{req.requesterName || 'Requester'}</div>
                           <div className="mc-role">{req.requesterEmail || ''}</div>
                         </div>
-                        <span className="mc-status amber">⏳ Pending</span>
+                        <span className="mc-status amber">Pending</span>
                       </div>
                     ))}
                   </div>
@@ -183,7 +183,7 @@ export default function TeamDashboard() {
       {/* Team Members (Mutual Matches) */}
       <div className="td-grid">
         <div className="td-main">
-          <h3 className="mb-4">👥 My Teammates (Mutual Matches)</h3>
+          <h3 className="mb-4">My Teammates</h3>
           <div className="members-grid">
             {mutualMatches.map(m => (
               <Card key={m.id} className="member-card">
@@ -195,10 +195,10 @@ export default function TeamDashboard() {
                 <div className="chip-row center mb-3">
                   {(m.skills || []).slice(0, 3).map(s => <SkillChip key={s} label={s} readonly size="small" />)}
                 </div>
-                <div className="mc-status green">✓ Matched</div>
+                <div className="mc-status green">Matched</div>
                 <div className="gc-actions" style={{ marginTop: '12px' }}>
-                  <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${m.id}`)}>👁️ View</button>
-                  <button className="btn btn-primary small-btn" onClick={() => navigate(`/chat?user=${m.id}`)}>💬 Chat</button>
+                  <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${m.id}`)}>View</button>
+                  <button className="btn btn-primary small-btn" onClick={() => navigate(`/chat?user=${m.id}`)}>Chat</button>
                 </div>
               </Card>
             ))}
@@ -217,9 +217,9 @@ export default function TeamDashboard() {
         <div className="td-side">
           <Card>
             <h3 className="mb-4">Quick Actions</h3>
-            <button className="btn btn-primary w-100 mb-3" onClick={() => navigate('/discover')}>🔍 Find Teammates</button>
-            <button className="btn btn-ghost w-100 mb-3" onClick={() => navigate('/idea-board')}>🚀 Post a Project</button>
-            <button className="btn btn-ghost w-100" onClick={() => navigate('/friends')}>👥 View Friends</button>
+            <button className="btn btn-primary w-100 mb-3" onClick={() => navigate('/discover')}>Find Teammates</button>
+            <button className="btn btn-ghost w-100 mb-3" onClick={() => navigate('/idea-board')}>Post a Project</button>
+            <button className="btn btn-ghost w-100" onClick={() => navigate('/friends')}>View Friends</button>
           </Card>
         </div>
       </div>

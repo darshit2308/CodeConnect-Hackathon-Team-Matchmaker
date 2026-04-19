@@ -41,11 +41,11 @@ export default function Notifications() {
 
   const getIcon = (type) => {
     switch(type) {
-      case 'invite': return '💌';
-      case 'match': return '🎉';
-      case 'system': return '🔔';
-      case 'message': return '💬';
-      default: return '📌';
+      case 'invite': return 'IN';
+      case 'match': return 'MT';
+      case 'system': return 'SY';
+      case 'message': return 'MS';
+      default: return 'UP';
     }
   };
 
@@ -54,13 +54,13 @@ export default function Notifications() {
       <div className="notif-container">
         <div className="notif-header">
           <h2>Notifications</h2>
-          <button className="btn btn-ghost" onClick={markAllRead}>✓ Mark all as read</button>
+          <button className="btn btn-ghost" onClick={markAllRead}>Mark all as read</button>
         </div>
 
         <div className="notif-list">
           {notifications.length === 0 && (
             <div className="empty-state">
-              <div style={{fontSize:'40px'}}>📭</div>
+              <div style={{fontSize:'40px'}}>0</div>
               <p>You're all caught up!</p>
             </div>
           )}

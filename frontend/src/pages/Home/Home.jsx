@@ -15,34 +15,66 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      {/* HERO SECTION */}
       <section className="hero">
-        <div className="blob blob-a"></div>
-        <div className="blob blob-b"></div>
-        <div className="blob blob-c"></div>
-
-        <div className="hero-content">
-          <div className="badge-pill">
-            <span className="dot pulse-dot"></span>
-            HCI Research Project &middot; Frictionless Team Formation
+        <div className="hero-grid">
+          <div className="hero-content">
+            <div className="badge-pill">
+              <span className="dot pulse-dot"></span>
+              Frictionless hackathon team formation
+            </div>
+            <h1 className="hero-h1">CodeConnect</h1>
+            <p className="hero-sub">
+              Build a balanced team around real skills, shared project intent, and mutual consent before the hackathon clock starts.
+            </p>
+            <div className="hero-ctas">
+              {user ? (
+                <button className="btn btn-primary" onClick={() => navigate('/discover')}>Discover Teammates</button>
+              ) : (
+                <button className="btn btn-primary" onClick={() => navigate('/signup')}>Create Your Profile</button>
+              )}
+              <button className="btn btn-ghost" onClick={handleScrollToHowItWorks}>See How It Works</button>
+            </div>
+            <div className="hero-proof">
+              <div><strong>420+</strong><span>builders</span></div>
+              <div><strong>67</strong><span>teams formed</span></div>
+              <div><strong>0</strong><span>cold DMs</span></div>
+            </div>
           </div>
-          <h1 className="hero-h1">
-            <span className="block">Find Your</span>
-            <span className="block gradient-text">Hackathon Team</span>
-          </h1>
-          <p className="hero-sub">
-            A frictionless platform to build balanced, high-performing teams effortlessly.
-          </p>
-          <div className="hero-ctas">
-            {user ? (
-              <button className="btn btn-primary" onClick={() => navigate('/discover')}>🚀 Discover Teammates</button>
-            ) : (
-              <button className="btn btn-primary" onClick={() => navigate('/signup')}>🚀 Create Your Profile</button>
-            )}
-            <button className="btn btn-ghost" onClick={handleScrollToHowItWorks}>See How It Works</button>
+
+          <div className="hero-product" aria-label="CodeConnect product preview">
+            <div className="product-topbar">
+              <span></span><span></span><span></span>
+              <strong>Live Match Desk</strong>
+            </div>
+            <div className="match-preview-card">
+              <div className="match-score">96% match</div>
+              <div className="preview-person">
+                <div className="preview-avatar">AR</div>
+                <div>
+                  <h3>Aarav Rao</h3>
+                  <p>Backend engineer · FinTech</p>
+                </div>
+              </div>
+              <div className="preview-tags">
+                <span>Node.js</span>
+                <span>MongoDB</span>
+                <span>APIs</span>
+              </div>
+              <div className="coverage-panel">
+                <div className="coverage-row"><span>Frontend</span><b style={{ width: '78%' }}></b></div>
+                <div className="coverage-row"><span>Backend</span><b style={{ width: '96%' }}></b></div>
+                <div className="coverage-row"><span>Design</span><b style={{ width: '62%' }}></b></div>
+              </div>
+            </div>
+            <div className="mini-board">
+              <div>
+                <span className="mini-kicker">Project</span>
+                <strong>Campus Carbon Ledger</strong>
+              </div>
+              <button className="mini-action">Invite</button>
+            </div>
           </div>
         </div>
-
 
       </section>
 
@@ -85,22 +117,22 @@ function ProblemSection() {
         <h2 style={{ color: 'white', margin: '12px 0 40px' }}>Why finding a team is broken</h2>
         <div className="pain-grid">
           <div className="pain-box">
-            <div className="pain-icon">💬</div>
+            <div className="pain-icon">01</div>
             <h3>WhatsApp Chaos</h3>
             <p>Endless scrolling to find teammates.</p>
           </div>
           <div className="pain-box">
-            <div className="pain-icon">😰</div>
+            <div className="pain-icon">02</div>
             <h3>Cold Outreach</h3>
             <p>Skip the anxiety of DMing strangers.</p>
           </div>
           <div className="pain-box">
-            <div className="pain-icon">⚖️</div>
+            <div className="pain-icon">03</div>
             <h3>Unbalanced Teams</h3>
             <p>Avoid missing crucial roles like backend or design.</p>
           </div>
           <div className="pain-box">
-            <div className="pain-icon">🎲</div>
+            <div className="pain-icon">04</div>
             <h3>Pure Luck</h3>
             <p>Don't rely on random Discord servers.</p>
           </div>
@@ -149,14 +181,14 @@ function HowItWorksSection() {
 function FeaturesSection() {
   const revealRef = useReveal();
   const features = [
-    { icon: '🃏', title: 'Swipe Discovery', desc: 'Tinder-like intuitive matches.' },
-    { icon: '🧩', title: 'Skill Tagging', desc: 'Find exact roles needed.' },
-    { icon: '💬', title: 'Ice-Breakers', desc: 'Pre-filled smart prompts.' },
-    { icon: '📊', title: 'Balance Meter', desc: 'Visual team skill radar.' },
-    { icon: '🎯', title: 'Project Board', desc: 'Match by shared projects.' },
-    { icon: '🔒', title: 'Privacy First', desc: 'Built-in secure chat.' },
-    { icon: '📣', title: 'Open Invites', desc: 'Fill empty specific spots.' },
-    { icon: '⚡', title: 'Fast Matches', desc: 'Panic-free last-minute finding.' }
+    { icon: '01', title: 'Swipe Discovery', desc: 'Fast, focused teammate review.' },
+    { icon: '02', title: 'Skill Tagging', desc: 'Find the exact role your team lacks.' },
+    { icon: '03', title: 'Ice-Breakers', desc: 'Smart prompts remove first-message friction.' },
+    { icon: '04', title: 'Balance Meter', desc: 'Visual team coverage before you commit.' },
+    { icon: '05', title: 'Project Board', desc: 'Match around shared ideas and needs.' },
+    { icon: '06', title: 'Privacy First', desc: 'Chat opens after intentional interest.' },
+    { icon: '07', title: 'Open Invites', desc: 'Fill specific roles without chaos.' },
+    { icon: '08', title: 'Fast Matches', desc: 'Last-minute team formation without panic.' }
   ];
 
   return (
@@ -199,11 +231,9 @@ function HciSection() {
           <p>Hide complex stats until needed.</p>
         </div>
         <div className="hci-card">
-          <div className="hci-card">
-            <div className="hci-num" style={{ color: 'var(--danger)' }}>04</div>
-            <h4>Social Scaffolding</h4>
-            <p>Guided chats help introverts connect.</p>
-          </div>
+          <div className="hci-num" style={{ color: 'var(--danger)' }}>04</div>
+          <h4>Social Scaffolding</h4>
+          <p>Guided chats help introverts connect.</p>
         </div>
       </div>
     </section>

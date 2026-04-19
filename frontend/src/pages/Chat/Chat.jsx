@@ -139,7 +139,7 @@ export default function Chat() {
           <>
             <div className="chat-header">
               <div className="ch-left">
-                <button className="ch-back mobile-only">←</button>
+                <button className="ch-back mobile-only">Back</button>
                 <div className="ch-avatar">{activeConvo.partner.initials}</div>
                 <div>
                   <div className="ch-name">{activeConvo.partner.name}</div>
@@ -147,8 +147,8 @@ export default function Chat() {
                 </div>
               </div>
               <div className="ch-right">
-                <button className="icon-btn">📞</button>
-                <button className="icon-btn">📹</button>
+                <button className="icon-btn">Call</button>
+                <button className="icon-btn">Meet</button>
                 <button className="icon-btn">⋮</button>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function Chat() {
                 <div key={m.id} className={`msg-wrap ${m.sender}`}>
                   <div className={`msg-bubble ${m.sender}`}>
                     {m.text}
-                    {m.sender === 'me' && <span className="read-receipt">✓✓</span>}
+                    {m.sender === 'me' && <span className="read-receipt">Read</span>}
                   </div>
                 </div>
               ))}
@@ -176,25 +176,25 @@ export default function Chat() {
 
             {messages.length < 3 && (
               <div className="ice-breakers">
-                <div className="ib-title">💬 Suggested starters</div>
+                <div className="ib-title">Suggested starters</div>
                 <div className="ib-list">
                   <span onClick={() => sendIceBreaker("What's your availability during the hackathon?")}>Availability</span>
                   <span onClick={() => sendIceBreaker("Which domain are you most excited about?")}>Excited about?</span>
-                  <span onClick={() => sendIceBreaker("Shall we make it official? 🤝")}>Make it official?</span>
+                  <span onClick={() => sendIceBreaker("Shall we make it official?")}>Make it official?</span>
                 </div>
               </div>
             )}
 
             <form className="chat-input-row" onSubmit={(e) => handleSend(e)}>
-              <button type="button" className="icon-btn">📎</button>
+              <button type="button" className="icon-btn">Add</button>
               <input 
                 type="text" 
                 placeholder="Type a message..." 
                 value={inputText}
                 onChange={e => setInputText(e.target.value)}
               />
-              <button type="button" className="icon-btn">😊</button>
-              <button type="submit" className="send-btn">➤</button>
+              <button type="button" className="icon-btn">Tone</button>
+              <button type="submit" className="send-btn">Send</button>
             </form>
           </>
         ) : (

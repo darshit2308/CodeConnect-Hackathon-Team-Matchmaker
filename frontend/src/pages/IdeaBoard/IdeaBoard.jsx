@@ -120,7 +120,7 @@ export default function IdeaBoard() {
 			<div className="ib-container">
 				<div className="ib-header">
 					<div>
-						<h2>🚀 Project Board</h2>
+						<h2>Project Board</h2>
 						<p className="ib-sub">Browse hackathon projects, manage your requests, and see who wants to join your work</p>
 					</div>
 					<button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Post Your Project</button>
@@ -150,7 +150,7 @@ export default function IdeaBoard() {
 						<div className="ib-grid">
 							{filteredIdeas.length === 0 ? (
 								<div className="empty-state" style={{ gridColumn: '1/-1' }}>
-									<div style={{ fontSize: '48px' }}>🏜️</div>
+									<div style={{ fontSize: '48px' }}>0</div>
 									<h3>No projects found</h3>
 									<p>Try a different filter or search term.</p>
 								</div>
@@ -183,7 +183,7 @@ export default function IdeaBoard() {
 												</div>
 												<div className="ic-actions">
 													<button className={`btn btn-primary small-btn ${hasPending(idea.id) ? 'requested' : ''}`} onClick={() => (hasPending(idea.id) ? null : handleJoinTeam(idea))} disabled={hasPending(idea.id)}>
-														{hasPending(idea.id) ? '✓ Request Sent' : 'Join Team →'}
+														{hasPending(idea.id) ? 'Request Sent' : 'Join Team'}
 													</button>
 													<button className="btn btn-ghost small-btn" onClick={() => setViewProject(idea)}>View</button>
 												</div>
@@ -201,7 +201,7 @@ export default function IdeaBoard() {
 						<h3 style={{ marginBottom: '16px' }}>Your Join Requests</h3>
 						{pendingRequests.length === 0 ? (
 							<div className="empty-state">
-								<div style={{ fontSize: '48px' }}>📭</div>
+								<div style={{ fontSize: '48px' }}>0</div>
 								<h3>No pending requests</h3>
 								<p>Browse projects and send a request to join a team.</p>
 							</div>
@@ -230,7 +230,7 @@ export default function IdeaBoard() {
 						<h3 style={{ marginBottom: '16px' }}>Your Projects</h3>
 						{filteredMyProjects.length === 0 ? (
 							<div className="empty-state">
-								<div style={{ fontSize: '48px' }}>🚀</div>
+								<div style={{ fontSize: '48px' }}>+</div>
 								<h3>No projects yet</h3>
 								<p>Post your first project so people can join you.</p>
 							</div>
@@ -252,7 +252,7 @@ export default function IdeaBoard() {
 											onClick={() => alert('Edit project details feature coming soon!')}
 											style={{ border: '1px solid var(--border)', width: 'auto' }}
 										>
-											✏️ Edit Details
+											Edit Details
 										</button>
 									</Card>
 
@@ -305,13 +305,13 @@ export default function IdeaBoard() {
 							</div>
 						</div>
 						<button className={`btn btn-primary w-100 ${hasPending(viewProject.id) ? 'requested' : ''}`} style={{ marginTop: '24px' }} onClick={() => (hasPending(viewProject.id) ? null : handleJoinTeam(viewProject))} disabled={hasPending(viewProject.id)}>
-							{hasPending(viewProject.id) ? '✓ Request Sent' : 'Join Team →'}
+							{hasPending(viewProject.id) ? 'Request Sent' : 'Join Team'}
 						</button>
 					</div>
 				</div>
 			)}
 
-			{showModal && <PostProjectModal onClose={() => setShowModal(false)} onPosted={() => { setShowModal(false); fetchMyProjects(); showToast('Project posted! Others can now join you 🎉', 'success'); }} />}
+			{showModal && <PostProjectModal onClose={() => setShowModal(false)} onPosted={() => { setShowModal(false); fetchMyProjects(); showToast('Project posted! Others can now join you.', 'success'); }} />}
 		</div>
 	);
 }
@@ -380,7 +380,7 @@ function PostProjectModal({ onClose, onPosted }) {
 					</div>
 					<div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
 						<button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
-						<button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Post Project →</button>
+						<button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Post Project</button>
 					</div>
 				</form>
 			</div>

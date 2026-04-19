@@ -237,10 +237,10 @@ export default function Discover() {
     }
 
     if (dragOffset.x > SWIPE_THRESHOLD) {
-      // Swiped right → LIKE
+      // Swiped right: like
       executeSwipe('right', currentP);
     } else if (dragOffset.x < -SWIPE_THRESHOLD) {
-      // Swiped left → PASS
+      // Swiped left: pass
       executeSwipe('left', currentP);
     } else {
       // Snap back
@@ -273,7 +273,7 @@ export default function Discover() {
   return (
     <div className="discover-page hide-scrollbars">
       <div className="d-sidebar hide-mobile">
-        <h4 style={{ marginBottom: '24px' }}>🔍 Filter Teammates</h4>
+        <h4 style={{ marginBottom: '24px' }}>Filter Teammates</h4>
         <input
           className="mb-4"
           type="search"
@@ -302,7 +302,7 @@ export default function Discover() {
           Reset Filters
         </button>
         <button className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={() => setShowStatus((value) => !value)}>
-          {showStatus ? '← Back to Discover' : `📊 Swipe Status (${swipeStatusList.length})`}
+          {showStatus ? 'Back to Discover' : `Swipe Status (${swipeStatusList.length})`}
         </button>
 
         <div className="my-stats-card mt-auto">
@@ -323,7 +323,7 @@ export default function Discover() {
               setShowStatus(false);
             }}
           >
-            <span className="tab-icon">👥</span>
+            <span className="tab-icon">All</span>
             <span className="tab-label">General</span>
             <span className="tab-desc">Find friends & teammates</span>
           </button>
@@ -335,7 +335,7 @@ export default function Discover() {
               setShowStatus(false);
             }}
           >
-            <span className="tab-icon">🚀</span>
+            <span className="tab-icon">Project</span>
             <span className="tab-label">My Project</span>
             <span className="tab-desc">
               {myProjects.length > 0
@@ -369,7 +369,7 @@ export default function Discover() {
             )}
           </div>
           <div className="view-toggles">
-            <button className={`vt-btn ${viewMode === 'swipe' ? 'active' : ''}`} onClick={() => setViewMode('swipe')}>🃏</button>
+            <button className={`vt-btn ${viewMode === 'swipe' ? 'active' : ''}`} onClick={() => setViewMode('swipe')} title="Swipe view">Swipe</button>
             <button className={`vt-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')}>⊞</button>
           </div>
         </div>
@@ -378,7 +378,7 @@ export default function Discover() {
           <div className="grid-view">
             {swipeStatusList.length === 0 ? (
               <div className="empty-state" style={{ gridColumn: '1/-1' }}>
-                <div style={{ fontSize: '48px' }}>📊</div>
+                <div style={{ fontSize: '48px' }}>0</div>
                 <h3>No requests sent</h3>
                 <p>Swipe right on profiles to connect!</p>
               </div>
@@ -388,7 +388,7 @@ export default function Discover() {
                   <div className="gc-match-badge" style={{
                     background: profile.swipeStatus === 'Accepted' ? 'var(--primary)' : profile.swipeStatus === 'Rejected' ? 'var(--error)' : 'var(--ink3)'
                   }}>
-                    {profile.swipeStatus === 'Accepted' ? '✅ Accepted' : profile.swipeStatus === 'Rejected' ? '❌ Rejected' : '⏳ Pending'}
+                    {profile.swipeStatus === 'Accepted' ? 'Accepted' : profile.swipeStatus === 'Rejected' ? 'Rejected' : 'Pending'}
                   </div>
                   <div className="gc-avatar" style={{ background: profile.avatarBg, color: profile.avatarColor }}>{profile.initials}</div>
                   <h4>{profile.name}</h4>
@@ -397,9 +397,9 @@ export default function Discover() {
                     {profile.skills.slice(0, 3).map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
                   </div>
                   <div className="gc-actions">
-                    <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${profile.id}`)}>👁️ View</button>
+                    <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${profile.id}`)}>View</button>
                     {profile.swipeStatus === 'Accepted' && (
-                      <button className="btn btn-primary small-btn" onClick={() => navigate(`/chat?user=${profile.id}`)}>💬 Message</button>
+                      <button className="btn btn-primary small-btn" onClick={() => navigate(`/chat?user=${profile.id}`)}>Message</button>
                     )}
                   </div>
                 </div>
@@ -408,11 +408,11 @@ export default function Discover() {
           </div>
         ) : hasNoProjectsForMyProject ? (
           <div className="empty-state my-project-empty">
-            <div className="empty-illustration">🚀</div>
+              <div className="empty-illustration">+</div>
             <h3>No projects posted yet</h3>
             <p>Post a project on the Project Board first, then come here to find teammates whose skills match your project needs.</p>
             <button className="btn btn-primary" style={{ marginTop: '16px' }} onClick={() => navigate('/idea-board')}>
-              Go to Project Board →
+              Go to Project Board
             </button>
           </div>
         ) : viewMode === 'swipe' ? (
@@ -535,7 +535,7 @@ export default function Discover() {
                         )}
 
                         <button className="view-profile-btn" onClick={() => navigate(`/profile/${p.id}`)}>
-                          👁️ View Profile
+                          View Profile
                         </button>
                         
                         {/* Render the full HTML inside the top card */}
@@ -576,11 +576,11 @@ export default function Discover() {
               </>
             ) : (
               <div className="empty-state">
-                <div style={{ fontSize: '48px' }}>🏜️</div>
+                <div style={{ fontSize: '48px' }}>No</div>
                 <h3>No more profiles</h3>
                 <p>You have seen all profiles in {discoverSubsection === 'general' ? 'General' : 'My Project'}.</p>
                 {discoverSubsection === 'general' && (
-                  <button className="btn btn-ghost" style={{ marginTop: '12px' }} onClick={() => loadProfiles()}>🔄 Refresh</button>
+                  <button className="btn btn-ghost" style={{ marginTop: '12px' }} onClick={() => loadProfiles()}>Refresh</button>
                 )}
               </div>
             )}
@@ -597,7 +597,7 @@ export default function Discover() {
                   {profile.skills.slice(0, 3).map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
                 </div>
                 <div className="gc-actions">
-                  <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${profile.id}`)}>👁️ View</button>
+                  <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${profile.id}`)}>View</button>
                   <button className="sa-btn pass" onClick={() => executeSwipe('left', profile)} disabled={!!swipeAnimation}>✕</button>
                   <button className="sa-btn like" onClick={() => executeSwipe('right', profile)} disabled={!!swipeAnimation}>♥</button>
                 </div>
@@ -605,7 +605,7 @@ export default function Discover() {
             ))}
             {profiles.length === 0 && (
               <div className="empty-state" style={{ gridColumn: '1/-1' }}>
-                <div style={{ fontSize: '48px' }}>🏜️</div>
+                <div style={{ fontSize: '48px' }}>No</div>
                 <h3>No profiles found</h3>
                 <p>Try adjusting your filters!</p>
               </div>
@@ -617,15 +617,14 @@ export default function Discover() {
       {showMatch && matchedProfile && (
         <div className="match-overlay" onClick={(event) => { if (event.target === event.currentTarget) setShowMatch(false); }}>
           <div className="match-card">
-            <div style={{ fontSize: '64px' }}>🎉</div>
             <div className="match-avatars">
               <div className="m-av my-av" style={{ background: user?.avatarBg, color: user?.avatarColor }}>{user?.initials}</div>
-              <div className="m-sparkle">✨</div>
+              <div className="m-sparkle">+</div>
               <div className="m-av their-av" style={{ background: matchedProfile.avatarBg, color: matchedProfile.avatarColor }}>{matchedProfile.initials}</div>
             </div>
             <h2 className="match-h2">It's a Match!</h2>
             <p className="match-sub">You and {matchedProfile.name} both swiped right. Say hello!</p>
-            <button className="btn btn-primary w-100 mb-2" onClick={() => navigate(`/chat?user=${matchedProfile.id}`)}>💬 Start Conversation</button>
+            <button className="btn btn-primary w-100 mb-2" onClick={() => navigate(`/chat?user=${matchedProfile.id}`)}>Start Conversation</button>
             <button className="btn btn-ghost w-100" onClick={() => setShowMatch(false)} style={{ border: 'none' }}>Keep Browsing</button>
           </div>
         </div>
