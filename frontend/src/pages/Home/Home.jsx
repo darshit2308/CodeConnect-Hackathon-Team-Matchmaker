@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReveal } from '../../hooks/useReveal';
+import { useAuth } from '../../context/AuthContext';
 import Card from '../../components/Card';
 import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleScrollToHowItWorks = () => {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
@@ -32,7 +34,11 @@ export default function Home() {
             A frictionless platform to build balanced, high-performing teams effortlessly.
           </p>
           <div className="hero-ctas">
-            <button className="btn btn-primary" onClick={() => navigate('/signup')}>🚀 Create Your Profile</button>
+            {user ? (
+              <button className="btn btn-primary" onClick={() => navigate('/discover')}>🚀 Discover Teammates</button>
+            ) : (
+              <button className="btn btn-primary" onClick={() => navigate('/signup')}>🚀 Create Your Profile</button>
+            )}
             <button className="btn btn-ghost" onClick={handleScrollToHowItWorks}>See How It Works</button>
           </div>
         </div>
@@ -62,7 +68,7 @@ export default function Home() {
         </div>
         <p className="tagline">The Frictionless Hackathon Ecosystem</p>
         <div className="footer-links">
-          <span>Home</span> &middot; <span>Discover</span> &middot; <span>Ideas</span> &middot; <span onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }}>Admin</span>
+          <span>Home</span> &middot; <span>Discover</span> &middot; <span>Projects</span> &middot; <span onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }}>Admin</span>
         </div>
         <p className="copy">&copy; 2026 CodeConnect HCI Project</p>
       </footer>
@@ -147,7 +153,7 @@ function FeaturesSection() {
     { icon: '🧩', title: 'Skill Tagging', desc: 'Find exact roles needed.' },
     { icon: '💬', title: 'Ice-Breakers', desc: 'Pre-filled smart prompts.' },
     { icon: '📊', title: 'Balance Meter', desc: 'Visual team skill radar.' },
-    { icon: '🎯', title: 'Idea Board', desc: 'Match by shared projects.' },
+    { icon: '🎯', title: 'Project Board', desc: 'Match by shared projects.' },
     { icon: '🔒', title: 'Privacy First', desc: 'Built-in secure chat.' },
     { icon: '📣', title: 'Open Invites', desc: 'Fill empty specific spots.' },
     { icon: '⚡', title: 'Fast Matches', desc: 'Panic-free last-minute finding.' }
@@ -207,6 +213,7 @@ function HciSection() {
 function TestimonialCtaSection() {
   const revealRef = useReveal();
   const navigate = useNavigate();
+  const { user } = useAuth();
   return (
     <>
       <section className="test-section" ref={revealRef}>
@@ -243,7 +250,11 @@ function TestimonialCtaSection() {
           <h2 className="cta-h2">Ready to find your squad?</h2>
           <p className="cta-sub">Join 420+ students forming winning teams today.</p>
           <div className="cta-btns">
-            <button className="btn" style={{ background: 'white', color: 'var(--primary)' }} onClick={() => navigate('/signup')}>Get Started Free</button>
+            {user ? (
+              <button className="btn" style={{ background: 'white', color: 'var(--primary)' }} onClick={() => navigate('/discover')}>Discover Teammates</button>
+            ) : (
+              <button className="btn" style={{ background: 'white', color: 'var(--primary)' }} onClick={() => navigate('/signup')}>Get Started Free</button>
+            )}
             <button className="btn btn-ghost" style={{ borderColor: 'white', color: 'white' }} onClick={() => navigate('/discover')}>Browse Profiles</button>
           </div>
           <div className="cta-stats">

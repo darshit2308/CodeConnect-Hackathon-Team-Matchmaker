@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
 import Card from '../../components/Card';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import './Notifications.css';
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const showToast = useToast();
+  const { refreshNotifications } = useAuth();
 
   useEffect(() => {
     fetchNotifications();
@@ -14,18 +16,27 @@ export default function Notifications() {
 
   const fetchNotifications = () => {
     API.get('/notifications').then(res => setNotifications(res.data)).catch(console.error);
+    refreshNotifications();
   };
 
   const handleAction = async (id, action) => {
-    await API.post(`/notifications/${id}/action`, { action });
-    showToast(`Invite ${action}ed!`, action === 'accept' ? 'success' : 'error');
-    fetchNotifications();
+    try {
+      await API.post(`/notifications/${id}/action`, { action });
+      showToast(`Invite ${action}ed!`, action === 'accept' ? 'success' : 'error');
+      fetchNotifications();
+    } catch {
+      showToast('Could not update notification', 'error');
+    }
   };
 
   const markAllRead = async () => {
-    await API.post('/notifications/read-all');
-    fetchNotifications();
-    showToast('All marked as read.', 'success');
+    try {
+      await API.post('/notifications/read-all');
+      fetchNotifications();
+      showToast('All marked as read.', 'success');
+    } catch {
+      showToast('Could not mark all as read', 'error');
+    }
   };
 
   const getIcon = (type) => {

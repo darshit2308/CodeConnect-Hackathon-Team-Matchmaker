@@ -12,6 +12,8 @@ import Chat from './pages/Chat/Chat';
 import IdeaBoard from './pages/IdeaBoard/IdeaBoard';
 import Notifications from './pages/Notifications/Notifications';
 import Admin from './pages/Admin/Admin';
+import Profile from './pages/Profile/Profile';
+import Friends from './pages/Friends/Friends';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './context/ToastContext';
 
@@ -40,6 +42,9 @@ export default function App() {
               <Route path="/team-dashboard" element={<ProtectedRoute><TeamDashboard /></ProtectedRoute>} />
               <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="/idea-board" element={<ProtectedRoute><IdeaBoard /></ProtectedRoute>} />
+              <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -71,3 +71,82 @@
   .td-grid { flex-direction: column; }
   .radar-layout { flex-direction: column; }
 }
+
+/* Project-wise Team Cards */
+.project-team-card {
+  margin-bottom: 20px;
+}
+.ptc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.ptc-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.ptc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ptc-skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ptc-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--ink3);
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.ptc-members {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ptc-member {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+}
+.ptc-member-info {
+  flex: 1;
+}
+.ptc-member-info .mc-name {
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.ptc-member-info .mc-role {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+
+.w-100 { width: 100%; }
+.p-6 { padding: 24px; }
+.gc-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.ic-domain {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.empty-state {
+  text-align: center;
+  color: var(--ink3);
+}

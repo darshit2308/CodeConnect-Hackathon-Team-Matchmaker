@@ -8,7 +8,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isAuthPage = ['/login', '/signup', '/profile-setup'].includes(location.pathname);
+  const isAuthPage = ['/login', '/signup'].includes(location.pathname);
+  const isSetupPage = location.pathname === '/profile-setup';
 
   return (
     <nav className="navbar">
@@ -17,12 +18,14 @@ export default function Navbar() {
         <span className="logo-connect">Connect</span>
       </div>
 
-      {!isAuthPage && (
+      {!isAuthPage && !isSetupPage && (
         <div className="nav-center">
           <NavLink to="/discover" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Discover</NavLink>
+          <NavLink to="/friends" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Friends</NavLink>
           <NavLink to="/team-dashboard" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>My Team</NavLink>
-          <NavLink to="/idea-board" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Ideas</NavLink>
+          <NavLink to="/idea-board" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Projects</NavLink>
           <NavLink to="/chat" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Messages</NavLink>
+          <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Profile</NavLink>
         </div>
       )}
 
@@ -41,7 +44,7 @@ export default function Navbar() {
               </svg>
               {unreadCount > 0 && <span className="bell-badge"></span>}
             </div>
-            <div className="nav-avatar" onClick={() => navigate('/team-dashboard')} title="Go to Team Dashboard">
+            <div className="nav-avatar" onClick={() => navigate('/profile')} title="Go to Profile">
               {user.initials || user.name.charAt(0)}
             </div>
             <button className="btn btn-ghost nav-btn hide-mobile" onClick={() => { logout(); navigate('/'); }} style={{ border: 'none', color: 'var(--danger)' }}>

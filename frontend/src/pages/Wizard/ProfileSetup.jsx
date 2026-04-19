@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import API from '../../services/api';
 import SkillChip from '../../components/SkillChip';
 import './Wizard.css';
 
@@ -17,11 +19,15 @@ const SKILL_GROUPS = {
 export default function ProfileSetup() {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
   const showToast = useToast();
+  const fileInputRef = useRef(null);
 
   // Step 1: Basic
-  const [avatar, setAvatar] = useState('AK');
-  const [name, setName] = useState('Anika Kapoor');
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const userName = user ? user.name : '';
+  const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+  const [name, setName] = useState(userName || '');
   const [college, setCollege] = useState('');
   
   // Step 2: Skills
@@ -37,15 +43,49 @@ export default function ProfileSetup() {
   // Step 4: Prefs
   const [lookingFor, setLookingFor] = useState([]);
   const [teamSize, setTeamSize] = useState('');
+  const [previousProjects, setPreviousProjects] = useState('');
   
   const toggleSkill = (skill, list, setList) => {
     if(list.includes(skill)) setList(list.filter(s => s !== skill));
     else setList([...list, skill]);
   };
 
-  const finishWizard = () => {
-    showToast("Profile live! You're now discoverable 🎉", 'success');
-    navigate('/discover');
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const finishWizard = async () => {
+    try {
+      await API.post('/auth/profile-setup', {
+        name,
+        college,
+        primaryRole,
+        selectedSkills,
+        ideaTitle,
+        ideaProblem,
+        lookingFor,
+        teamSize,
+        previousProjects
+      });
+      if (user?.name !== name && name.trim()) {
+        setUser({ ...user, name: name.trim() });
+      }
+      showToast("Profile live! You're now discoverable", 'success');
+      navigate('/profile');
+    } catch {
+      showToast('Could not save profile setup', 'error');
+    }
   };
 
   return (
@@ -74,9 +114,14 @@ export default function ProfileSetup() {
           {step === 1 && (
             <div className="step-content">
               <h2>Basic Info</h2>
-              <div className="avatar-upload-area" onClick={() => setAvatar('🌟')}>
-                <div className="avatar-preview">{avatar}</div>
-                <div style={{color:'var(--ink3)'}}>📸 Upload Photo</div>
+              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarChange} style={{display:'none'}} />
+              <div className="avatar-upload-area" onClick={handleAvatarClick}>
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar" className="avatar-img-preview" />
+                ) : (
+                  <div className="avatar-preview">{userInitials}</div>
+                )}
+                <div style={{color:'var(--ink3)', marginTop:'4px'}}>📸 Upload Photo</div>
               </div>
               <div className="form-group">
                 <label>Full Name</label>
@@ -188,17 +233,21 @@ export default function ProfileSetup() {
 
               <p className="wiz-sub">Team size preference:</p>
               <div className="role-grid" style={{marginBottom:'24px'}}>
-                {['Solo \u2192 Team', '2 people', '3 people', '4-5 people'].map(s => (
+                {['No Preference', 'Solo \u2192 Team', '2 people', '3 people', '4-5 people'].map(s => (
                   <div key={s} className={`role-pill ${teamSize===s ? 'active' : ''}`} onClick={()=>setTeamSize(s)}>{s}</div>
                 ))}
               </div>
 
-              <p className="wiz-sub">Availability:</p>
-              <div className="skill-chips-row">
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                  <SkillChip key={day} label={day} selected={true} onClick={()=>{}} />
-                ))}
+              <div className="form-group">
+                <label>Previous Projects (comma separated)</label>
+                <textarea
+                  rows="3"
+                  value={previousProjects}
+                  onChange={(e) => setPreviousProjects(e.target.value)}
+                  placeholder="Eg. Smart Canteen App, AR Campus Navigator"
+                ></textarea>
               </div>
+
             </div>
           )}
 
@@ -211,7 +260,7 @@ export default function ProfileSetup() {
             {step < 4 ? (
               <button className="btn btn-primary" onClick={() => setStep(step+1)}>Next &rarr;</button>
             ) : (
-              <button className="btn btn-primary" onClick={finishWizard}>Finish & Go Live 🚀</button>
+              <button className="btn btn-primary" onClick={finishWizard}>Finish 🚀</button>
             )}
           </div>
         </div>

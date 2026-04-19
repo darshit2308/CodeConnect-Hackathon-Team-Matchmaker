@@ -30,8 +30,8 @@ module.exports = {
     { id: 5, type: 'system', message: 'HackFest 2025 registration closes in 3 days!', sub: 'Complete your team setup soon.', timestamp: '1d ago', read: true }
   ],
   conversations: [
-    { id: 201, partner: { id: 2, name: 'Rahul Singh', initials: 'RS', status: '● Online' }, lastMessage: 'Are you free this weekend?', timestamp: '1h ago', unread: 1, type: 'match' },
-    { id: 202, partner: { id: 15, name: 'Karan Mehta', initials: 'KM', status: 'Last seen 2h ago' }, lastMessage: 'Shall we lock in the team? 🤝', timestamp: '2h ago', unread: 0, type: 'team' }
+    { id: 201, partner: { id: 2, name: 'Rahul Singh', initials: 'RS', status: '● Online' }, lastMessage: '', timestamp: '', unread: 0, type: 'match' },
+    { id: 202, partner: { id: 15, name: 'Karan Mehta', initials: 'KM', status: 'Last seen 2h ago' }, lastMessage: '', timestamp: '', unread: 0, type: 'team' }
   ],
   messages: {},
   adminStats: {

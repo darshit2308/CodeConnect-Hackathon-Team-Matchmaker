@@ -30,9 +30,13 @@ export default function Login() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      await googleLogin(credentialResponse.credential);
+      const result = await googleLogin(credentialResponse.credential);
       showToast('Signed in with Google! 👋');
-      navigate('/discover');
+      if (result.isNewUser) {
+        navigate('/profile-setup');
+      } else {
+        navigate('/discover');
+      }
     } catch {
       showToast('Error signing in with Google', 'error');
     }
@@ -45,13 +49,38 @@ export default function Login() {
         <div className="auth-left hide-mobile">
           <div className="auth-left-content">
             <h2 className="auth-logo"><span style={{color:'white'}}>Code</span><span style={{color:'var(--accent)'}}>Connect</span></h2>
-            <h3 className="auth-quote">"The right teammate can turn a good idea into a winning project."</h3>
-            
-            <div className="auth-avatars">
-              <div className="avatar-stack">AK</div>
-              <div className="avatar-stack">RS</div>
-              <div className="avatar-stack" style={{background:'white',color:'var(--primary)'}}>+12</div>
-              <div style={{marginLeft:'12px', fontSize:'13px', opacity:0.8}}>Recent sign-ups</div>
+            <div>
+              <h3 className="auth-quote">"The right teammate can turn a good idea into a winning project."</h3>
+              <div className="auth-float-icons">
+                <div className="auth-float-icon">⚛️</div>
+                <div className="auth-float-icon">🐍</div>
+                <div className="auth-float-icon">🎨</div>
+                <div className="auth-float-icon">☁️</div>
+                <div className="auth-float-icon">🤖</div>
+              </div>
+            </div>
+            <div>
+              <div className="auth-stats">
+                <div className="auth-stat">
+                  <div className="auth-stat-num">420+</div>
+                  <div className="auth-stat-label">Students</div>
+                </div>
+                <div className="auth-stat">
+                  <div className="auth-stat-num">12</div>
+                  <div className="auth-stat-label">Colleges</div>
+                </div>
+                <div className="auth-stat">
+                  <div className="auth-stat-num">67</div>
+                  <div className="auth-stat-label">Teams</div>
+                </div>
+              </div>
+              <div className="auth-avatars">
+                <div className="avatar-stack">AK</div>
+                <div className="avatar-stack">RS</div>
+                <div className="avatar-stack">PV</div>
+                <div className="avatar-stack" style={{background:'rgba(255,255,255,0.3)',color:'white'}}>+12</div>
+                <div style={{marginLeft:'12px', fontSize:'13px', opacity:0.8}}>Recent sign-ups</div>
+              </div>
             </div>
           </div>
         </div>

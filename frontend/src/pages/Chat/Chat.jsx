@@ -3,28 +3,52 @@ import { useSearchParams } from 'react-router-dom';
 import API from '../../services/api';
 import './Chat.css';
 
+const EMPTY_MESSAGES = {
+  all: 'No conversations yet. Match with someone to start chatting!',
+  match: 'No matches yet. Swipe right on profiles to find matches!',
+  team: 'No team conversations yet. Form a team first!'
+};
+
 export default function Chat() {
   const [conversations, setConversations] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   const scrollRef = useRef(null);
 
   const [searchParams] = useSearchParams();
 
+  const loadConversations = async (preferredId = null) => {
+    const res = await API.get('/chat/conversations');
+    setConversations(res.data);
+
+    if (preferredId) {
+      await loadChat(preferredId);
+      return;
+    }
+
+    if (!activeChatId && res.data.length > 0) {
+      await loadChat(res.data[0].id);
+    }
+  };
+
   useEffect(() => {
-    API.get('/chat/conversations').then(res => {
-      setConversations(res.data);
-      const urlUser = searchParams.get('user');
-      if (urlUser) {
-        const id = parseInt(urlUser, 10);
-        // Normally find conversation by user id, for mock we just use 201
-        loadChat(201);
-      } else if (res.data.length > 0) {
-        loadChat(res.data[0].id);
+    const bootstrap = async () => {
+      try {
+        const urlProfileId = searchParams.get('user');
+        if (urlProfileId) {
+          const startRes = await API.post('/chat/start', { profileId: urlProfileId });
+          await loadConversations(startRes.data.conversationId);
+        } else {
+          await loadConversations();
+        }
+      } catch (err) {
+        console.error(err);
       }
-    }).catch(console.error);
+    };
+    bootstrap();
   }, [searchParams]);
 
   useEffect(() => {
@@ -47,28 +71,13 @@ export default function Chat() {
     if (!txt.trim() || !activeChatId) return;
 
     setInputText('');
-    const newMsg = { id: Date.now(), sender: 'me', text: txt, timestamp: 'Just now' };
-    setMessages(prev => [...prev, newMsg]);
     setIsTyping(true);
 
     try {
       const res = await API.post(`/chat/${activeChatId}`, { text: txt });
-      // The API simulates a delay and sends back the same message. We wait 1.5s manually for the auto reply here.
-      setTimeout(() => {
-        setIsTyping(false);
-        const replies = [
-          "Sounds great! 😊",
-          "That's an interesting idea, tell me more!",
-          "I'm definitely down for that 🚀",
-          "Haha, yeah absolutely.",
-          "Let's do it! When are you free to sync?",
-          "Got it. What's the next step?",
-          "Could be fun. I have some experience with that too.",
-          "Awesome. I'll look into it."
-        ];
-        const randomReply = replies[Math.floor(Math.random() * replies.length)];
-        setMessages(prev => [...prev, { id: Date.now()+1, sender: 'them', text: randomReply, timestamp: 'Just now' }]);
-      }, 1500);
+      setMessages(prev => [...prev, res.data.message]);
+      setIsTyping(false);
+      await loadConversations(activeChatId);
     } catch {
       setIsTyping(false);
     }
@@ -80,37 +89,48 @@ export default function Chat() {
 
   const activeConvo = conversations.find(c => c.id === activeChatId);
 
+  const filteredConversations = conversations.filter(c => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'match') return c.type === 'match';
+    if (activeTab === 'team') return c.type === 'team';
+    return true;
+  });
+
   return (
     <div className="chat-page hide-scrollbars">
       <div className="chat-sidebar hide-mobile">
         <div className="sidebar-header">
           <input type="search" placeholder="Search messages..." className="chat-search" />
           <div className="chat-tabs">
-            <span className="c-tab active">All</span>
-            <span className="c-tab">Matches</span>
-            <span className="c-tab">Teams</span>
+            <span className={`c-tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>All</span>
+            <span className={`c-tab ${activeTab === 'match' ? 'active' : ''}`} onClick={() => setActiveTab('match')}>Matches</span>
+            <span className={`c-tab ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>Teams</span>
           </div>
         </div>
         <div className="conv-list">
-          {conversations.map(c => (
-            <div 
-              key={c.id} 
-              className={`conv-item ${c.id === activeChatId ? 'active' : ''}`}
-              onClick={() => loadChat(c.id)}
-            >
-              <div className="conv-avatar">
-                {c.partner.initials}
-                {c.unread > 0 && <div className="c-badge">{c.unread}</div>}
-              </div>
-              <div className="conv-info">
-                <div className="cv-head">
-                  <span className="cv-name">{c.partner.name}</span>
-                  <span className="cv-time">{c.timestamp}</span>
+          {filteredConversations.length === 0 ? (
+            <div className="empty-conv">{EMPTY_MESSAGES[activeTab]}</div>
+          ) : (
+            filteredConversations.map(c => (
+              <div 
+                key={c.id} 
+                className={`conv-item ${c.id === activeChatId ? 'active' : ''}`}
+                onClick={() => loadChat(c.id)}
+              >
+                <div className="conv-avatar">
+                  {c.partner.initials}
+                  {c.unread > 0 && <div className="c-badge">{c.unread}</div>}
                 </div>
-                <div className="cv-preview">{c.lastMessage}</div>
+                <div className="conv-info">
+                  <div className="cv-head">
+                    <span className="cv-name">{c.partner.name}</span>
+                    <span className="cv-time">{c.timestamp}</span>
+                  </div>
+                  <div className="cv-preview">{c.lastMessage || <em style={{opacity:0.5}}>No messages yet</em>}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

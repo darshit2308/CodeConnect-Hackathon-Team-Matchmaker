@@ -55,8 +55,13 @@ export default function Signup() {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      await googleLogin(credentialResponse.credential);
-      navigate('/profile-setup');
+      const result = await googleLogin(credentialResponse.credential);
+      if (result.isNewUser) {
+        navigate('/profile-setup');
+      } else {
+        showToast('Welcome back! 👋');
+        navigate('/discover');
+      }
     } catch {
       showToast('Error signing in with Google', 'error');
     }
@@ -69,7 +74,39 @@ export default function Signup() {
         <div className="auth-left auth-left-signup hide-mobile">
           <div className="auth-left-content">
             <h2 className="auth-logo"><span style={{ color: 'white' }}>Code</span><span style={{ color: 'var(--accent)' }}>Connect</span></h2>
-            <h3 className="auth-quote">"Find the missing puzzle piece for your hackathon."</h3>
+            <div>
+              <h3 className="auth-quote">"Find the missing puzzle piece for your hackathon."</h3>
+              <div className="auth-float-icons">
+                <div className="auth-float-icon">🚀</div>
+                <div className="auth-float-icon">💡</div>
+                <div className="auth-float-icon">🃏</div>
+                <div className="auth-float-icon">🧩</div>
+                <div className="auth-float-icon">⚡</div>
+              </div>
+            </div>
+            <div>
+              <div className="auth-stats">
+                <div className="auth-stat">
+                  <div className="auth-stat-num">234</div>
+                  <div className="auth-stat-label">Matches</div>
+                </div>
+                <div className="auth-stat">
+                  <div className="auth-stat-num">0</div>
+                  <div className="auth-stat-label">Awkward DMs</div>
+                </div>
+                <div className="auth-stat">
+                  <div className="auth-stat-num">128</div>
+                  <div className="auth-stat-label">Projects</div>
+                </div>
+              </div>
+              <div className="auth-avatars">
+                <div className="avatar-stack">SG</div>
+                <div className="avatar-stack">AM</div>
+                <div className="avatar-stack">NK</div>
+                <div className="avatar-stack" style={{background:'rgba(255,255,255,0.3)',color:'white'}}>+8</div>
+                <div style={{marginLeft:'12px', fontSize:'13px', opacity:0.8}}>Just joined today</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -106,10 +143,6 @@ export default function Signup() {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>College / University</label>
-                  <input type="text" required />
-                </div>
 
                 <div className="form-group">
                   <label>Email</label>
