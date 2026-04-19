@@ -283,14 +283,20 @@ exports.searchProfiles = async (req, res) => {
   try {
     const query = (req.query.q || '').trim();
     const myProfile = await UserProfile.findOne({ user: req.userId });
-    const swiped = await Swipe.find({ swiper: req.userId }).select('targetProfile');
-    const excludedIds = swiped.map((entry) => entry.targetProfile);
+    const excludedIds = [];
     if (myProfile) excludedIds.push(myProfile._id);
 
     const match = {
-      _id: { $nin: excludedIds },
-      ...(query ? { name: { $regex: query, $options: 'i' } } : {})
+      _id: { $nin: excludedIds }
     };
+
+    if (query) {
+      match.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { skills: { $regex: query, $options: 'i' } },
+        { role: { $regex: query, $options: 'i' } }
+      ];
+    }
 
     const profiles = await UserProfile.find(match).sort({ createdAt: -1 }).limit(30);
     return res.json(profiles.map((profile) => toProfileCard(profile, myProfile)));
@@ -417,8 +423,29 @@ exports.getTeam = (req, res) => {
   res.json(db.team);
 };
 
-exports.inviteTeamMember = (req, res) => {
-  res.json({ success: true, message: 'Invite sent' });
+exports.inviteTeamMember = async (req, res) => {
+  try {
+    const { profileId, projectId } = req.body;
+    if (!profileId || !projectId) return res.status(400).json({ error: 'profileId and projectId required' });
+
+    const targetProfile = await UserProfile.findById(profileId);
+    if (!targetProfile || !targetProfile.user) return res.status(404).json({ error: 'Target user not found' });
+
+    const idea = await Idea.findById(projectId);
+    if (!idea) return res.status(404).json({ error: 'Idea not found' });
+    if (idea.posterUser.toString() !== req.userId) return res.status(403).json({ error: 'Not your project' });
+
+    await JoinRequest.findOneAndUpdate(
+      { idea: projectId, requester: targetProfile.user },
+      { status: 'invited' },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    return res.json({ success: true, message: 'Invite sent' });
+  } catch (err) {
+    console.error('Invite team member err:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
 };
 
 exports.getIdeas = async (req, res) => {
@@ -775,15 +802,60 @@ exports.revokeJoinRequest = async (req, res) => {
   }
 };
 
+exports.acceptJoinRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const request = await JoinRequest.findById(id).populate('idea');
+    if (!request) return res.status(404).json({ error: 'Join request not found' });
+    const isOwner = request.idea && request.idea.posterUser && request.idea.posterUser.toString() === req.userId;
+    const isInvitedUser = request.requester && request.requester.toString() === req.userId && request.status === 'invited';
+
+    if (!isOwner && !isInvitedUser) {
+      return res.status(403).json({ error: 'Unauthorized to modify this request' });
+    }
+    
+    request.status = 'accepted';
+    await request.save();
+    
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Accept join request err:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.rejectJoinRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const request = await JoinRequest.findById(id).populate('idea');
+    if (!request) return res.status(404).json({ error: 'Join request not found' });
+    const isOwner = request.idea && request.idea.posterUser && request.idea.posterUser.toString() === req.userId;
+    const isInvitedUser = request.requester && request.requester.toString() === req.userId && request.status === 'invited';
+
+    if (!isOwner && !isInvitedUser) {
+      return res.status(403).json({ error: 'Unauthorized to modify this request' });
+    }
+    
+    request.status = 'rejected';
+    await request.save();
+    
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('Reject join request err:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.getPendingJoinRequests = async (req, res) => {
   try {
-    const requests = await JoinRequest.find({ requester: req.userId, status: 'pending' }).populate('idea');
+    const requests = await JoinRequest.find({ requester: req.userId, status: { $in: ['pending', 'invited'] } }).populate('idea');
     return res.json(
       requests.map((req) => ({
         id: req._id.toString(),
         ideaId: req.idea._id.toString(),
         ideaTitle: req.idea.title,
-        posterName: req.idea.posterName
+        posterName: req.idea.posterName,
+        status: req.status
       }))
     );
   } catch (err) {
@@ -835,7 +907,7 @@ exports.getProjectJoinRequests = async (req, res) => {
       return res.status(403).json({ error: 'Not your project' });
     }
 
-    const requests = await JoinRequest.find({ idea: ideaId, status: 'pending' })
+    const requests = await JoinRequest.find({ idea: ideaId, status: { $in: ['pending', 'accepted'] } })
       .populate('requester');
 
     return res.json(
@@ -843,7 +915,8 @@ exports.getProjectJoinRequests = async (req, res) => {
         id: req._id.toString(),
         requesterId: req.requester._id.toString(),
         requesterName: `${req.requester.firstName} ${req.requester.lastName}`,
-        requesterEmail: req.requester.email
+        requesterEmail: req.requester.email,
+        status: req.status
       }))
     );
   } catch (err) {
@@ -870,6 +943,29 @@ exports.getMutualMatches = async (req, res) => {
         });
         if (reciprocal) {
           matchedProfileIds.push(swap.targetProfile);
+        }
+      }
+    }
+
+    // Add accepted project members
+    const acceptedRequestsAsRequester = await JoinRequest.find({ requester: req.userId, status: 'accepted' }).populate('idea');
+    for (const request of acceptedRequestsAsRequester) {
+      if (request.idea && request.idea.posterUser) {
+        const posterProf = await UserProfile.findOne({ user: request.idea.posterUser });
+        if (posterProf && !matchedProfileIds.some(id => id.toString() === posterProf._id.toString())) {
+          matchedProfileIds.push(posterProf._id);
+        }
+      }
+    }
+
+    const myIdeas = await Idea.find({ posterUser: req.userId });
+    const myIdeaIds = myIdeas.map(i => i._id);
+    const acceptedRequestsAsPoster = await JoinRequest.find({ idea: { $in: myIdeaIds }, status: 'accepted' });
+    for (const request of acceptedRequestsAsPoster) {
+      if (request.requester) {
+        const requesterProf = await UserProfile.findOne({ user: request.requester });
+        if (requesterProf && !matchedProfileIds.some(id => id.toString() === requesterProf._id.toString())) {
+          matchedProfileIds.push(requesterProf._id);
         }
       }
     }

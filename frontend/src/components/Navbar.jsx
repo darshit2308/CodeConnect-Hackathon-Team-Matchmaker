@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from './Logo';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -14,8 +15,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-left" onClick={() => navigate('/')}>
-        <span className="logo-code">Code</span>
-        <span className="logo-connect">Connect</span>
+        <Logo size={28} />
       </div>
 
       {!isAuthPage && !isSetupPage && (

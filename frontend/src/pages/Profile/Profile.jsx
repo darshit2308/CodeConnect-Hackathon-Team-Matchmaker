@@ -97,13 +97,17 @@ export default function Profile() {
       <div className="profile-shell">
         <div className="profile-left">
           <Card className="profile-main-card">
+            <div className="profile-banner"></div>
             <div className="profile-head">
-              <div className="profile-avatar" style={{ background: profile.avatarBg, color: profile.avatarColor }}>
-                {profile.initials}
+              <div className="profile-avatar-container">
+                <div className="profile-avatar" style={{ background: profile.avatarBg, color: profile.avatarColor }}>
+                  {profile.initials}
+                </div>
               </div>
-              <div>
+              <div className="profile-title-area">
                 <h2>{profile.name}</h2>
-                <p>{profile.role} {profile.college ? `· ${profile.college}` : ''}</p>
+                <p className="profile-role-badge">{profile.role}</p>
+                {profile.college && <p className="profile-college">🎓 {profile.college}</p>}
               </div>
             </div>
 

@@ -38,6 +38,8 @@ export const joinIdea = (ideaId) => API.post('/ideas/join', { ideaId });
 export const revokeJoinRequest = (ideaId) => API.post('/ideas/join/revoke', { ideaId });
 export const getPendingJoinRequests = () => API.get('/ideas/pending-requests');
 export const getProjectJoinRequests = (ideaId) => API.get(`/ideas/${ideaId}/join-requests`);
+export const acceptJoinRequest = (requestId) => API.post(`/ideas/join/${requestId}/accept`);
+export const rejectJoinRequest = (requestId) => API.post(`/ideas/join/${requestId}/reject`);
 
 // CHAT
 export const getConversations = () => API.get('/chat/conversations');

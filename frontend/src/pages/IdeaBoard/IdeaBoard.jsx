@@ -99,6 +99,56 @@ export default function IdeaBoard() {
 		}
 	};
 
+	const handleAcceptInvite = async (reqId) => {
+		try {
+			await API.acceptJoinRequest(reqId);
+			await fetchPendingRequests();
+			showToast('Invitation accepted!', 'success');
+		} catch (err) {
+			console.error('Error accepting invite:', err);
+			showToast('Could not accept invitation', 'error');
+		}
+	};
+
+	const handleRejectInvite = async (reqId) => {
+		try {
+			await API.rejectJoinRequest(reqId);
+			await fetchPendingRequests();
+			showToast('Invitation declined', 'success');
+		} catch (err) {
+			console.error('Error rejecting invite:', err);
+			showToast('Could not decline invitation', 'error');
+		}
+	};
+
+	const handleAcceptProjectRequest = async (projectId, reqId) => {
+		try {
+			await API.acceptJoinRequest(reqId);
+			setMyProjectJoinRequests(prev => ({
+				...prev,
+				[projectId]: prev[projectId].map(r => r.id === reqId ? { ...r, status: 'accepted' } : r)
+			}));
+			showToast('Request accepted', 'success');
+		} catch (err) {
+			console.error('Error accepting:', err);
+			showToast('Could not accept request', 'error');
+		}
+	};
+
+	const handleRejectProjectRequest = async (projectId, reqId) => {
+		try {
+			await API.rejectJoinRequest(reqId);
+			setMyProjectJoinRequests(prev => ({
+				...prev,
+				[projectId]: prev[projectId].map(r => r.id === reqId ? { ...r, status: 'rejected' } : r)
+			}));
+			showToast('Request rejected', 'success');
+		} catch (err) {
+			console.error('Error rejecting:', err);
+			showToast('Could not reject request', 'error');
+		}
+	};
+
 	const filteredIdeas = useMemo(() => {
 		return ideas.filter((idea) => {
 			const matchesDomain = activeDomain === 'All' || idea.domain === activeDomain;
@@ -214,9 +264,16 @@ export default function IdeaBoard() {
 											<div className="request-meta">By {request.idea?.posterUser?.name || request.posterName || 'Creator'}</div>
 										</div>
 										<div className="request-actions">
-											<button className="btn btn-ghost danger" onClick={() => handleRevokeRequest(request.idea?.id || request.ideaId)}>
-												Revoke Request
-											</button>
+											{request.status === 'invited' ? (
+												<div style={{ display: 'flex', gap: '8px' }}>
+													<button className="btn btn-ghost danger" onClick={() => handleRejectInvite(request.id || request.ideaId)}>Decline</button>
+													<button className="btn btn-primary" onClick={() => handleAcceptInvite(request.id || request.ideaId)}>Accept Invite</button>
+												</div>
+											) : (
+												<button className="btn btn-ghost danger" onClick={() => handleRevokeRequest(request.idea?.id || request.ideaId)}>
+													Revoke Request
+												</button>
+											)}
 										</div>
 									</div>
 								))}
@@ -268,11 +325,20 @@ export default function IdeaBoard() {
 											myProjectJoinRequests[idea.id].map((request) => (
 												<div key={request.id} className="request-item">
 													<div className="request-info">
-														<div className="request-title">{request.requester?.name || 'Requester'}</div>
-														<div className="request-meta">{request.requester?.role || 'Member'} · {request.requester?.email || ''}</div>
+														<div className="request-title">{request.requesterName || 'Requester'}</div>
+														<div className="request-meta">Member · {request.requesterEmail || ''}</div>
 													</div>
 													<div className="request-actions">
-														<button className="btn btn-primary" disabled>Pending</button>
+														{request.status === 'accepted' ? (
+															<span className="mc-status green" style={{ fontWeight: 800, color: 'var(--success)' }}>Accepted</span>
+														) : request.status === 'rejected' ? (
+															<span className="mc-status red" style={{ fontWeight: 800, color: 'var(--danger)' }}>Rejected</span>
+														) : (
+															<div style={{ display: 'flex', gap: '8px' }}>
+																<button className="btn btn-ghost danger" onClick={() => handleRejectProjectRequest(idea.id, request.id)}>Reject</button>
+																<button className="btn btn-primary" onClick={() => handleAcceptProjectRequest(idea.id, request.id)}>Accept</button>
+															</div>
+														)}
 													</div>
 												</div>
 											))
@@ -287,26 +353,52 @@ export default function IdeaBoard() {
 
 			{viewProject && (
 				<div className="modal-overlay" onClick={(event) => { if (event.target === event.currentTarget) setViewProject(null); }}>
-					<div className="modal-card">
-						<button className="modal-close" onClick={() => setViewProject(null)}>×</button>
-						<h2>{viewProject.title}</h2>
-						<div className="vp-section">
-							<h4>Problem Statement</h4>
-							<p>{viewProject.problemStatement}</p>
+					<div className="modal-card view-project-modal" style={{ padding: 0, overflow: 'hidden', maxWidth: '600px' }}>
+						<div className="vp-header-banner" data-domain={viewProject.domain} style={{ height: '140px', position: 'relative', background: 'linear-gradient(135deg, var(--primary), var(--accent))' }}>
+							<button className="modal-close" onClick={() => setViewProject(null)} style={{ color: 'white', background: 'rgba(0,0,0,0.2)', top: '16px', right: '16px' }}>×</button>
+							<div className="vp-domain-badge" style={{ position: 'absolute', bottom: '16px', left: '32px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: 'white', padding: '6px 12px', borderRadius: '20px', fontWeight: 600, fontSize: '13px' }}>{viewProject.domain}</div>
 						</div>
-						<div className="vp-section">
-							<h4>Solution</h4>
-							<p>{viewProject.solutionDescription || 'No solution description added yet.'}</p>
-						</div>
-						<div className="vp-section">
-							<h4>Skills Needed</h4>
-							<div className="chip-row">
-								{viewProject.skillsNeeded.map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
+						<div className="vp-content" style={{ padding: '32px' }}>
+							<h2 style={{ fontSize: '28px', marginBottom: '24px', lineHeight: '1.2' }}>{viewProject.title}</h2>
+							
+							<div className="vp-poster-info" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', padding: '16px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '16px' }}>
+								<div className="ic-av" style={{ width: '56px', height: '56px', fontSize: '20px' }}>{viewProject.posterUser?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'}</div>
+								<div>
+									<div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--ink)' }}>{viewProject.posterUser?.name || 'Creator'}</div>
+									<div style={{ fontSize: '14px', color: 'var(--ink3)' }}>Project Owner</div>
+								</div>
+							</div>
+
+							<div className="vp-section" style={{ marginBottom: '24px' }}>
+								<h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink3)', marginBottom: '12px' }}>
+									<span style={{ fontSize: '18px' }}>🎯</span> Problem Statement
+								</h4>
+								<p style={{ lineHeight: '1.6', color: 'var(--ink)', fontSize: '16px' }}>{viewProject.problemStatement}</p>
+							</div>
+
+							<div className="vp-section" style={{ marginBottom: '24px' }}>
+								<h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink3)', marginBottom: '12px' }}>
+									<span style={{ fontSize: '18px' }}>💡</span> Solution
+								</h4>
+								<p style={{ lineHeight: '1.6', color: 'var(--ink)', fontSize: '16px' }}>{viewProject.solutionDescription || 'No solution description added yet.'}</p>
+							</div>
+
+							<div className="vp-section" style={{ marginBottom: '32px' }}>
+								<h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink3)', marginBottom: '12px' }}>
+									<span style={{ fontSize: '18px' }}>🛠️</span> Skills Needed
+								</h4>
+								<div className="chip-row">
+									{viewProject.skillsNeeded.map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
+								</div>
+							</div>
+
+							<div className="vp-actions" style={{ display: 'flex', gap: '12px' }}>
+								<button className="btn btn-ghost" style={{ flex: 1, padding: '14px' }} onClick={() => setViewProject(null)}>Close</button>
+								<button className={`btn btn-primary ${hasPending(viewProject.id) ? 'requested' : ''}`} style={{ flex: 2, padding: '14px', fontSize: '16px' }} onClick={() => (hasPending(viewProject.id) ? null : handleJoinTeam(viewProject))} disabled={hasPending(viewProject.id)}>
+									{hasPending(viewProject.id) ? 'Join Request Sent ✅' : 'Send Join Request'}
+								</button>
 							</div>
 						</div>
-						<button className={`btn btn-primary w-100 ${hasPending(viewProject.id) ? 'requested' : ''}`} style={{ marginTop: '24px' }} onClick={() => (hasPending(viewProject.id) ? null : handleJoinTeam(viewProject))} disabled={hasPending(viewProject.id)}>
-							{hasPending(viewProject.id) ? 'Request Sent' : 'Join Team'}
-						</button>
 					</div>
 				</div>
 			)}

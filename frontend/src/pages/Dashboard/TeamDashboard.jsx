@@ -47,6 +47,30 @@ export default function TeamDashboard() {
   };
 
   // Calculate team skill coverage from mutual matches
+  const handleAcceptRequest = async (projectId, reqId) => {
+    try {
+      await API.acceptJoinRequest(reqId);
+      setProjectJoinRequests(prev => ({
+        ...prev,
+        [projectId]: prev[projectId].map(r => r.id === reqId ? { ...r, status: 'accepted' } : r)
+      }));
+    } catch (err) {
+      console.error('Failed to accept:', err);
+    }
+  };
+
+  const handleRejectRequest = async (projectId, reqId) => {
+    try {
+      await API.rejectJoinRequest(reqId);
+      setProjectJoinRequests(prev => ({
+        ...prev,
+        [projectId]: prev[projectId].map(r => r.id === reqId ? { ...r, status: 'rejected' } : r)
+      }));
+    } catch (err) {
+      console.error('Failed to reject:', err);
+    }
+  };
+
   const skillCoverage = useMemo(() => {
     const categories = [
       { label: 'Frontend', keywords: ['react', 'vue', 'angular', 'html', 'css', 'tailwind', 'next.js', 'javascript', 'frontend'] },
@@ -169,7 +193,16 @@ export default function TeamDashboard() {
                           <div className="mc-name">{req.requesterName || 'Requester'}</div>
                           <div className="mc-role">{req.requesterEmail || ''}</div>
                         </div>
-                        <span className="mc-status amber">Pending</span>
+                        {req.status === 'accepted' ? (
+                          <span className="mc-status green">Accepted</span>
+                        ) : req.status === 'rejected' ? (
+                          <span className="mc-status red">Rejected</span>
+                        ) : (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="btn btn-ghost small-btn" onClick={() => handleRejectRequest(project.id, req.id)}>Reject</button>
+                            <button className="btn btn-primary small-btn" onClick={() => handleAcceptRequest(project.id, req.id)}>Accept</button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

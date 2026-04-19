@@ -556,14 +556,6 @@ export default function Discover() {
                     ✕
                   </button>
                   <button
-                    className="sa-btn super"
-                    title="Super Like"
-                    onClick={() => executeSwipe('super', currentProfile)}
-                    disabled={!!swipeAnimation || isSwiping.current}
-                  >
-                    ⭐
-                  </button>
-                  <button
                     className="sa-btn like"
                     title="Like"
                     onClick={() => executeSwipe('right', currentProfile)}

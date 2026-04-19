@@ -42,6 +42,8 @@ router.get('/ideas', apiController.getIdeas);
 router.post('/ideas', apiController.postIdea);
 router.post('/ideas/join', apiController.joinIdea);
 router.post('/ideas/join/revoke', apiController.revokeJoinRequest);
+router.post('/ideas/join/:id/accept', apiController.acceptJoinRequest);
+router.post('/ideas/join/:id/reject', apiController.rejectJoinRequest);
 
 // CHAT
 router.get('/chat/conversations', apiController.getConversations);

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReveal } from '../../hooks/useReveal';
 import { useAuth } from '../../context/AuthContext';
 import Card from '../../components/Card';
+import Logo from '../../components/Logo';
 import './Home.css';
 
 export default function Home() {
@@ -95,8 +96,8 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <div className="footer-logo">
-          <span style={{ color: 'white' }}>Code</span><span style={{ color: 'var(--accent)' }}>Connect</span>
+        <div className="footer-logo" style={{ display: 'flex', justifyContent: 'center' }}>
+          <Logo size={24} dark={true} />
         </div>
         <p className="tagline">The Frictionless Hackathon Ecosystem</p>
         <div className="footer-links">

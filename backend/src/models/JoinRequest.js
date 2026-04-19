@@ -4,7 +4,7 @@ const joinRequestSchema = new mongoose.Schema(
   {
     idea: { type: mongoose.Schema.Types.ObjectId, ref: 'Idea', required: true },
     requester: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
+    status: { type: String, enum: ['pending', 'accepted', 'rejected', 'invited'], default: 'pending' }
   },
   { timestamps: true }
 );

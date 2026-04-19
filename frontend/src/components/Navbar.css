@@ -23,19 +23,8 @@
   letter-spacing: 0;
   position: relative;
 }
-.nav-left::before {
-  content: '';
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  margin-right: 10px;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.42)),
-    linear-gradient(135deg, var(--primary), var(--accent));
-  box-shadow: 0 12px 28px rgba(37, 88, 212, 0.18);
-}
-.logo-code { color: var(--primary); }
-.logo-connect { color: var(--ink); }
+
+
 
 .nav-center {
   display: flex;
@@ -130,7 +119,6 @@
   .hide-mobile { display: none !important; }
   .navbar { padding: 0 16px; }
   .nav-left { font-size: 19px; }
-  .nav-left::before { width: 28px; height: 28px; }
   .nav-btn { padding-inline: 14px; width: auto !important; }
 }
 
