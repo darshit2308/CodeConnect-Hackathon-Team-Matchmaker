@@ -228,7 +228,7 @@ button:focus-visible, a:focus-visible {
 
 @media (max-width: 640px) {
   :root {
-    --nav-h: 68px;
+    --nav-h: 110px;
   }
 
   .btn {
@@ -241,5 +241,59 @@ button:focus-visible, a:focus-visible {
     right: 16px;
     bottom: 16px;
     text-align: center;
+  }
+}
+
+/* --- Global Mobile Responsiveness Overrides --- */
+@media screen and (max-width: 768px) {
+  /* Prevent horizontal scrolling globally */
+  html, body {
+    overflow-x: hidden;
+    width: 100vw;
+  }
+
+  #root {
+    width: 100%;
+    overflow-x: hidden;
+    padding: 0;
+  }
+
+  /* Downscale oversized typography */
+  h1 {
+    font-size: 2.2rem !important;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: 1.7rem !important;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 1.3rem !important;
+  }
+
+  /* Reset layout constraints and paddings */
+  .page-container, .container, main, section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ensure cards, media, and form inputs fit the screen */
+  .card, img, video, form, input, textarea, select, button {
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Automatically convert generic multi-column layouts into stacks */
+  .grid-2, .grid-3, .grid-4, .discover-grid, .ideas-grid, .team-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Handle overflowing flex containers gracefully */
+  .flex-row.responsive, .responsive-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 }
