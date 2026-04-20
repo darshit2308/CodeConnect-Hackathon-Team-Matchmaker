@@ -19,6 +19,7 @@ function normalizeIdea(idea) {
 export default function IdeaBoard() {
 	const [ideas, setIdeas] = useState([]);
 	const [myProjects, setMyProjects] = useState([]);
+	const [participatedProjects, setParticipatedProjects] = useState([]);
 	const [pendingRequests, setPendingRequests] = useState([]);
 	const [myProjectJoinRequests, setMyProjectJoinRequests] = useState({});
 	const [activeDomain, setActiveDomain] = useState('All');
@@ -26,8 +27,22 @@ export default function IdeaBoard() {
 	const [activeTab, setActiveTab] = useState('projects');
 	const [viewProject, setViewProject] = useState(null);
 	const [showModal, setShowModal] = useState(false);
+	const [notInterestedIds, setNotInterestedIds] = useState(() => {
+		const stored = localStorage.getItem('cc_not_interested_ideas');
+		return stored ? JSON.parse(stored) : [];
+	});
+
 	const showToast = useToast();
 	const { user } = useAuth();
+
+	useEffect(() => {
+		localStorage.setItem('cc_not_interested_ideas', JSON.stringify(notInterestedIds));
+	}, [notInterestedIds]);
+
+	const handleNotInterested = (ideaId) => {
+		setNotInterestedIds(prev => [...prev, ideaId]);
+		showToast('Project removed from your view', 'success');
+	};
 
 	const fetchIdeas = async () => {
 		try {
@@ -60,6 +75,15 @@ export default function IdeaBoard() {
 		}
 	};
 
+	const fetchParticipatedProjects = async () => {
+		try {
+			const res = await API.getParticipatedProjects();
+			setParticipatedProjects((res.data || []).map(normalizeIdea));
+		} catch (err) {
+			console.error('Error fetching participated projects:', err);
+		}
+	};
+
 	const fetchPendingRequests = async () => {
 		try {
 			const res = await API.getPendingJoinRequests();
@@ -72,6 +96,7 @@ export default function IdeaBoard() {
 	useEffect(() => {
 		fetchIdeas();
 		fetchMyProjects();
+		fetchParticipatedProjects();
 		fetchPendingRequests();
 	}, []);
 
@@ -151,11 +176,12 @@ export default function IdeaBoard() {
 
 	const filteredIdeas = useMemo(() => {
 		return ideas.filter((idea) => {
+			if (notInterestedIds.includes(idea.id)) return false;
 			const matchesDomain = activeDomain === 'All' || idea.domain === activeDomain;
 			const matchesSearch = !search.trim() || `${idea.title} ${idea.problemStatement} ${idea.solutionDescription}`.toLowerCase().includes(search.toLowerCase());
 			return matchesDomain && matchesSearch;
 		});
-	}, [ideas, activeDomain, search]);
+	}, [ideas, activeDomain, search, notInterestedIds]);
 
 	const filteredMyProjects = useMemo(() => {
 		return myProjects.filter((idea) => {
@@ -164,6 +190,14 @@ export default function IdeaBoard() {
 			return matchesDomain && matchesSearch;
 		});
 	}, [myProjects, activeDomain, search]);
+
+	const filteredParticipatedProjects = useMemo(() => {
+		return participatedProjects.filter((idea) => {
+			const matchesDomain = activeDomain === 'All' || idea.domain === activeDomain;
+			const matchesSearch = !search.trim() || `${idea.title} ${idea.problemStatement} ${idea.solutionDescription}`.toLowerCase().includes(search.toLowerCase());
+			return matchesDomain && matchesSearch;
+		});
+	}, [participatedProjects, activeDomain, search]);
 
 	return (
 		<div className="ib-page hide-scrollbars">
@@ -236,6 +270,7 @@ export default function IdeaBoard() {
 														{hasPending(idea.id) ? 'Request Sent' : 'Join Team'}
 													</button>
 													<button className="btn btn-ghost small-btn" onClick={() => setViewProject(idea)}>View</button>
+													<button className="btn btn-ghost danger small-btn" onClick={() => handleNotInterested(idea.id)}>Not Interested</button>
 												</div>
 											</div>
 										</div>
@@ -344,6 +379,41 @@ export default function IdeaBoard() {
 											))
 										)}
 									</div>
+								</div>
+							))
+						)}
+
+						<h3 style={{ marginTop: '48px', marginBottom: '16px' }}>Projects You're Part Of</h3>
+						{filteredParticipatedProjects.length === 0 ? (
+							<div className="empty-state" style={{ minHeight: '150px' }}>
+								<p>You haven't joined any other projects yet.</p>
+							</div>
+						) : (
+							filteredParticipatedProjects.map((idea) => (
+								<div key={idea.id} style={{ marginBottom: '24px' }}>
+									<Card>
+										<div className="ic-meta-row">
+											<span className="ic-domain">{idea.domain}</span>
+											<span className="ic-timer green">Team Member</span>
+										</div>
+										<h3 className="ic-title">{idea.title}</h3>
+										<p className="ic-desc">{idea.problemStatement}</p>
+										<div className="chip-row" style={{ marginBottom: '16px' }}>
+											{idea.skillsNeeded.slice(0, 3).map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
+										</div>
+										<div className="ic-footer" style={{ borderTop: 'none', paddingTop: 0, marginTop: 0 }}>
+											<div className="ic-poster">
+												<div className="ic-av">{idea.posterUser?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'}</div>
+												<div>
+													<div className="ic-p-name">{idea.posterUser?.name || 'Creator'}</div>
+													<div className="ic-p-time">Project Owner</div>
+												</div>
+											</div>
+											<div className="ic-actions">
+												<button className="btn btn-ghost small-btn" onClick={() => setViewProject(idea)}>View Full Details</button>
+											</div>
+										</div>
+									</Card>
 								</div>
 							))
 						)}

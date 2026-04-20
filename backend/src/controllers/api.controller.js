@@ -921,6 +921,49 @@ exports.getMyProjects = async (req, res) => {
   }
 };
 
+exports.getParticipatedProjects = async (req, res) => {
+  try {
+    const requests = await JoinRequest.find({
+      requester: req.userId,
+      status: { $in: ['accepted'] }
+    }).populate('idea');
+
+    const participatedIdeas = requests
+      .filter(req => req.idea) // ensure idea exists
+      .map(req => {
+        const idea = req.idea;
+        return {
+          id: idea._id.toString(),
+          title: idea.title,
+          domain: idea.domain,
+          problem: idea.problem,
+          problemStatement: idea.problem,
+          solution: idea.solution,
+          solutionDescription: idea.solution,
+          hackathon: idea.hackathon,
+          skillsNeeded: idea.skillsNeeded,
+          closesIn: idea.closesIn,
+          likes: idea.likes,
+          posterUser: {
+            id: idea.posterUser?.toString() || null,
+            name: idea.posterName,
+            avatar: idea.posterAvatar
+          },
+          poster: {
+            name: idea.posterName,
+            avatar: idea.posterAvatar,
+            daysAgo: Math.max(0, Math.floor((Date.now() - new Date(idea.createdAt).getTime()) / (24 * 60 * 60 * 1000)))
+          }
+        };
+      });
+
+    return res.json(participatedIdeas);
+  } catch (err) {
+    console.error('Get participated projects err:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
+
 exports.getProjectJoinRequests = async (req, res) => {
   try {
     const { ideaId } = req.params;

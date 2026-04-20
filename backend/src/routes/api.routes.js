@@ -36,6 +36,7 @@ router.post('/team/invite', apiController.inviteTeamMember);
 
 // IDEAS (specific routes before parameterized)
 router.get('/ideas/my-projects', apiController.getMyProjects);
+router.get('/ideas/participated', apiController.getParticipatedProjects);
 router.get('/ideas/pending-requests', apiController.getPendingJoinRequests);
 router.get('/ideas/:ideaId/join-requests', apiController.getProjectJoinRequests);
 router.get('/ideas', apiController.getIdeas);

@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+let baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// Ensure the base URL ends with '/api' if it's not already included
+if (baseURL && !baseURL.endsWith('/api') && !baseURL.includes('/api/')) {
+  baseURL = `${baseURL.replace(/\/$/, '')}/api`;
+}
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL,
 });
 
 API.interceptors.request.use((config) => {
@@ -34,6 +40,7 @@ export const inviteTeamMember = (profileId, projectId) => API.post('/team/invite
 export const getIdeas = () => API.get('/ideas');
 export const postIdea = (data) => API.post('/ideas', data);
 export const getMyProjects = () => API.get('/ideas/my-projects');
+export const getParticipatedProjects = () => API.get('/ideas/participated');
 export const joinIdea = (ideaId) => API.post('/ideas/join', { ideaId });
 export const revokeJoinRequest = (ideaId) => API.post('/ideas/join/revoke', { ideaId });
 export const getPendingJoinRequests = () => API.get('/ideas/pending-requests');
