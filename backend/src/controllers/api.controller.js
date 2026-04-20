@@ -390,26 +390,38 @@ exports.swipeRight = async (req, res) => {
         targetProfile: myProfile._id,
         direction: 'right'
       });
+      
       if (reciprocalRight) {
         match = true;
+        // Check if conversation already exists to prevent duplicate notifications/logic
+        const existingConv = await Conversation.findOne({
+          participants: { $all: [req.userId, targetProfile.user] },
+          type: 'match'
+        });
+
         const conversation = await findOrCreateConversation(req.userId, targetProfile.user);
         conversationId = conversation._id.toString();
-        await Notification.create({
-          user: req.userId,
-          type: 'match',
-          title: 'It is a match!',
-          message: `You matched with ${targetProfile.name}.`,
-          read: false
-        });
-        await Notification.create({
-          user: targetProfile.user,
-          type: 'match',
-          title: 'It is a match!',
-          message: `${myProfile.name} matched with you.`,
-          read: false
-        });
+
+        if (!existingConv) {
+          // Only notify if this is the FIRST time the match is established
+          await Notification.create({
+            user: req.userId,
+            type: 'match',
+            title: 'It is a match!',
+            message: `You matched with ${targetProfile.name}.`,
+            read: false
+          });
+          await Notification.create({
+            user: targetProfile.user,
+            type: 'match',
+            title: 'It is a match!',
+            message: `${myProfile.name} matched with you.`,
+            read: false
+          });
+        }
       }
     } else {
+      // Mock matching for cases where target isn't a real user or as fallback
       match = Math.random() > 0.7;
     }
 
@@ -1063,7 +1075,7 @@ exports.getWhoLikedMe = async (req, res) => {
     // Find all right swipes where I am the target
     const likesMeSwipes = await Swipe.find({ targetProfile: myProfile._id, direction: 'right' }).populate('swiper');
 
-    // Find all my swipes so we can filter out people I've already swiped on
+    // Find all my swipes (left or right) to filter out people I've already interacted with
     const mySwipes = await Swipe.find({ swiper: req.userId }).select('targetProfile');
     const mySwipedProfileIds = new Set(mySwipes.map((s) => s.targetProfile.toString()));
 
@@ -1074,7 +1086,8 @@ exports.getWhoLikedMe = async (req, res) => {
       const swiperProfile = await UserProfile.findOne({ user: swipe.swiper._id });
       if (!swiperProfile) continue;
 
-      // Only show if I haven't swiped on them yet
+      // 1. Only show if I haven't swiped on them yet (right or left)
+      // 2. This naturally excludes people who are already matches
       if (!mySwipedProfileIds.has(swiperProfile._id.toString())) {
         resultProfiles.push(toProfileCard(swiperProfile, myProfile));
       }
