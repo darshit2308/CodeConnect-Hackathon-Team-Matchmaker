@@ -54,6 +54,9 @@ export default function TeamDashboard() {
         ...prev,
         [projectId]: prev[projectId].map(r => r.id === reqId ? { ...r, status: 'accepted' } : r)
       }));
+      // Refresh mutual matches to add the new teammate instantly
+      const matchesRes = await API.getMutualMatches();
+      setMutualMatches(matchesRes.data || []);
     } catch (err) {
       console.error('Failed to accept:', err);
     }
