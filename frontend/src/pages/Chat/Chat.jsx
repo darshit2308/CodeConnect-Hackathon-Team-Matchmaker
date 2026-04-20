@@ -79,7 +79,7 @@ export default function Chat() {
           });
         } catch(err) {}
       }
-    }, 15000); // 15 seconds
+    }, 5000); // 5 seconds
 
     return () => clearInterval(interval);
   }, [activeChatId]);

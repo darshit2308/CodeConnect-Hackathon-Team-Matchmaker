@@ -638,6 +638,12 @@ exports.getChatHistory = async (req, res) => {
       { $set: { read: true } }
     );
 
+    // Also mark related notifications as read
+    await Notification.updateMany(
+      { user: req.userId, type: 'message', relatedId: conversation._id.toString(), read: false },
+      { $set: { read: true } }
+    );
+
     const messages = await Message.find({ conversation: conversation._id }).sort({ createdAt: 1 });
     return res.json(
       messages.map((msg) => ({
@@ -669,13 +675,34 @@ exports.sendMessage = async (req, res) => {
 
     const partnerId = conversation.participants.find((id) => id.toString() !== req.userId);
     if (partnerId) {
-      await Notification.create({
+      const myProfile = await UserProfile.findOne({ user: req.userId });
+      const senderName = myProfile?.name || 'Someone';
+
+      // Check for an existing unread notification for this conversation
+      const existingNotif = await Notification.findOne({
         user: partnerId,
         type: 'message',
-        title: 'New message',
-        message: text,
+        relatedId: conversation._id.toString(),
         read: false
       });
+
+      if (existingNotif) {
+        // Update existing notification to show latest message and bump timestamp
+        existingNotif.message = text;
+        existingNotif.title = `New messages from ${senderName}`;
+        existingNotif.updatedAt = new Date();
+        await existingNotif.save();
+      } else {
+        // Create new notification
+        await Notification.create({
+          user: partnerId,
+          type: 'message',
+          title: `New message from ${senderName}`,
+          message: text,
+          read: false,
+          relatedId: conversation._id.toString()
+        });
+      }
     }
 
     return res.json({
