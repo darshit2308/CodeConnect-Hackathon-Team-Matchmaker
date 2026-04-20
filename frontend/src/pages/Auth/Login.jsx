@@ -10,6 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorField, setErrorField] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const showToast = useToast();
@@ -19,12 +20,15 @@ export default function Login() {
     if (!email) { setErrorField('email'); return; }
     if (!password) { setErrorField('password'); return; }
 
+    setIsLoading(true);
     try {
       await login(email, password);
       showToast('Welcome back!');
       navigate('/discover');
     } catch {
       showToast('Invalid credentials', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,7 +124,16 @@ export default function Login() {
                 {errorField === 'password' && <span className="error-msg">Password is required</span>}
               </div>
 
-              <button type="submit" className="btn btn-primary submit-btn">Sign In</button>
+              <button type="submit" className="btn btn-primary submit-btn" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                {isLoading ? (
+                  <>
+                    <div className="btn-spinner"></div>
+                    Signing In...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </button>
             </form>
 
             <p className="auth-bottom">

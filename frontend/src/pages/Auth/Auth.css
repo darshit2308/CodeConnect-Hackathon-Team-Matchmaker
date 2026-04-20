@@ -314,3 +314,16 @@
     gap: 0;
   }
 }
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: auth-spin 1s ease-in-out infinite;
+}
+
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}

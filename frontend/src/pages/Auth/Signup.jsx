@@ -13,6 +13,7 @@ export default function Signup() {
   const [terms, setTerms] = useState(false);
   const [step, setStep] = useState(0);
   const [otp, setOtp] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login, sendOtp, verifyOtpAndSignup, googleLogin } = useAuth();
   const navigate = useNavigate();
   const showToast = useToast();
@@ -28,6 +29,7 @@ export default function Signup() {
   const handleSignupStage1 = async (e) => {
     e.preventDefault();
     if (!terms) return;
+    setIsLoading(true);
     try {
       const res = await sendOtp(email);
       if (res.testOtp) {
@@ -39,17 +41,22 @@ export default function Signup() {
       setStep(1);
     } catch {
       showToast('Error sending OTP. Email may be taken.', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await verifyOtpAndSignup(firstName, lastName, email, password, otp);
       showToast('Account created!');
       navigate('/profile-setup');
     } catch {
       showToast('Invalid OTP', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,8 +155,15 @@ export default function Signup() {
                   <label htmlFor="terms">I agree to the Terms of Service and Privacy Policy</label>
                 </div>
 
-                <button type="submit" className="btn btn-primary submit-btn" disabled={!terms} style={{ opacity: terms ? 1 : 0.5 }}>
-                  Get OTP via Email
+                <button type="submit" className="btn btn-primary submit-btn" disabled={!terms || isLoading} style={{ opacity: (!terms || isLoading) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                  {isLoading ? (
+                    <>
+                      <div className="btn-spinner"></div>
+                      Sending OTP...
+                    </>
+                  ) : (
+                    'Get OTP via Email'
+                  )}
                 </button>
               </form>
             ) : (
@@ -159,8 +173,15 @@ export default function Signup() {
                   <input type="text" value={otp} onChange={e => setOtp(e.target.value)} required style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '24px' }} />
                 </div>
 
-                <button type="submit" className="btn btn-primary submit-btn">
-                  Verify & Create Account
+                <button type="submit" className="btn btn-primary submit-btn" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                  {isLoading ? (
+                    <>
+                      <div className="btn-spinner"></div>
+                      Verifying...
+                    </>
+                  ) : (
+                    'Verify & Create Account'
+                  )}
                 </button>
                 <button type="button" className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={() => setStep(0)}>
                   &larr; Back
