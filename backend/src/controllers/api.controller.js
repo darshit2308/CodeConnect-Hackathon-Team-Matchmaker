@@ -687,8 +687,8 @@ exports.sendMessage = async (req, res) => {
       });
 
       if (existingNotif) {
-        // Update existing notification to show latest message and bump timestamp
-        existingNotif.message = text;
+        // Update existing notification and bump timestamp
+        existingNotif.message = `New message from ${senderName}`;
         existingNotif.title = `New messages from ${senderName}`;
         existingNotif.updatedAt = new Date();
         await existingNotif.save();
@@ -698,7 +698,7 @@ exports.sendMessage = async (req, res) => {
           user: partnerId,
           type: 'message',
           title: `New message from ${senderName}`,
-          message: text,
+          message: `New message from ${senderName}`,
           read: false,
           relatedId: conversation._id.toString()
         });
