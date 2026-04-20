@@ -312,9 +312,6 @@ export default function Discover() {
         <button className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={resetFilters}>
           Reset Filters
         </button>
-        <button className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={() => setShowStatus((value) => !value)}>
-          {showStatus ? 'Back to Discover' : `Swipe Status (${swipeStatusList.length})`}
-        </button>
         <button 
           className="btn btn-ghost w-100" 
           style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
@@ -322,6 +319,9 @@ export default function Discover() {
         >
           Who Right Swiped You
           {whoLikedMeCount > 0 && <span className="who-liked-badge">{whoLikedMeCount}</span>}
+        </button>
+        <button className="btn btn-ghost w-100" style={{ marginTop: '8px' }} onClick={() => setShowStatus((value) => !value)}>
+          {showStatus ? 'Back to Discover' : `Swipe Status (${swipeStatusList.length})`}
         </button>
 
         <div className="my-stats-card mt-auto">

@@ -10,6 +10,7 @@ export default function Friends() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchMutualMatches();
@@ -40,8 +41,18 @@ export default function Friends() {
       <div className="friends-container">
         <div className="friends-header">
           <div>
-            <h2>My Friends</h2>
+            <h2>My Friends <span className="friend-count-badge">{mutualMatches.length}</span></h2>
             <p className="friends-sub">People you've matched with. Both of you swiped right.</p>
+          </div>
+          <div className="friends-search-container">
+            <input
+              type="text"
+              className="friends-search-bar"
+              placeholder="Search friends by name or role..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <i className="fas fa-search search-icon"></i>
           </div>
         </div>
 
@@ -65,50 +76,57 @@ export default function Friends() {
           </div>
         ) : (
           <div className="friends-grid">
-            {mutualMatches.map(profile => (
-              <div key={profile.id} className="friend-card">
-                <div className="friend-avatar-container">
-                  <div 
-                    className="friend-avatar" 
-                    style={{
-                      background: profile.avatarBg,
-                      color: profile.avatarColor
-                    }}
-                  >
-                    {profile.initials}
+            {mutualMatches
+              .filter(profile => (profile.name + profile.role).toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(profile => (
+                <div key={profile.id} className="friend-card">
+                  <div className="friend-avatar-container">
+                    <div 
+                      className="friend-avatar" 
+                      style={{
+                        background: profile.avatarBg,
+                        color: profile.avatarColor
+                      }}
+                    >
+                      {profile.initials}
+                    </div>
+                    <div className="friend-match-badge">Match</div>
                   </div>
-                  <div className="friend-match-badge">Match</div>
+  
+                  <h3 className="friend-name">{profile.name}</h3>
+                  <div className="friend-role">{profile.role}</div>
+                  <div className="friend-college">{profile.college}</div>
+  
+                  <div className="friend-skills">
+                    {profile.skills.slice(0, 3).map(skill => (
+                      <SkillChip key={skill} label={skill} readonly size="small" />
+                    ))}
+                    {profile.skills.length > 3 && (
+                      <span className="friend-more-skills">+{profile.skills.length - 3}</span>
+                    )}
+                  </div>
+  
+                  <div className="friend-actions">
+                    <button 
+                      className="btn btn-ghost small-btn"
+                      onClick={() => handleViewProfile(profile.id)}
+                    >
+                      View Profile
+                    </button>
+                    <button 
+                      className="btn btn-primary small-btn"
+                      onClick={() => handleMessage(profile.id)}
+                    >
+                      Message
+                    </button>
+                  </div>
                 </div>
-
-                <h3 className="friend-name">{profile.name}</h3>
-                <div className="friend-role">{profile.role}</div>
-                <div className="friend-college">{profile.college}</div>
-
-                <div className="friend-skills">
-                  {profile.skills.slice(0, 3).map(skill => (
-                    <SkillChip key={skill} label={skill} readonly size="small" />
-                  ))}
-                  {profile.skills.length > 3 && (
-                    <span className="friend-more-skills">+{profile.skills.length - 3}</span>
-                  )}
-                </div>
-
-                <div className="friend-actions">
-                  <button 
-                    className="btn btn-ghost small-btn"
-                    onClick={() => handleViewProfile(profile.id)}
-                  >
-                    View Profile
-                  </button>
-                  <button 
-                    className="btn btn-primary small-btn"
-                    onClick={() => handleMessage(profile.id)}
-                  >
-                    Message
-                  </button>
-                </div>
+              ))}
+            {mutualMatches.length > 0 && mutualMatches.filter(profile => (profile.name + profile.role).toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+              <div className="empty-state-friends" style={{ gridColumn: '1/-1' }}>
+                <p>No friends match your search.</p>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>

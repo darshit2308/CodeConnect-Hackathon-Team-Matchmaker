@@ -15,7 +15,6 @@ export default function Profile() {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
-  const [mutualFriends, setMutualFriends] = useState([]);
 
   const isSelf = !id;
 
@@ -25,15 +24,6 @@ export default function Profile() {
       try {
         const res = isSelf ? await API.getMyProfile() : await API.getProfile(id);
         setProfile(res.data);
-        
-        if (isSelf) {
-          try {
-            const friendsRes = await API.getMutualMatches();
-            setMutualFriends(friendsRes.data);
-          } catch (err) {
-            console.error('Error loading mutual matches:', err);
-          }
-        }
       } catch (err) {
         console.error(err);
         setProfile(null);
@@ -197,36 +187,6 @@ export default function Profile() {
               </div>
             )}
 
-            {isSelf && mutualFriends.length > 0 && (
-              <section className="profile-section">
-                <h4>Your Friends ({mutualFriends.length})</h4>
-                <div className="friends-mini-list">
-                  {mutualFriends.slice(0, 5).map(friend => (
-                    <Link 
-                      key={friend.id} 
-                      to={`/profile/${friend.id}`}
-                      className="friend-mini-card"
-                    >
-                      <div 
-                        className="friend-mini-avatar"
-                        style={{ background: friend.avatarBg, color: friend.avatarColor }}
-                      >
-                        {friend.initials}
-                      </div>
-                      <div className="friend-mini-info">
-                        <div className="friend-mini-name">{friend.name}</div>
-                        <div className="friend-mini-role">{friend.role}</div>
-                      </div>
-                    </Link>
-                  ))}
-                  {mutualFriends.length > 5 && (
-                    <Link to="/friends" className="friend-see-more">
-                      See all {mutualFriends.length} friends
-                    </Link>
-                  )}
-                </div>
-              </section>
-            )}
           </Card>
         </div>
 
@@ -244,7 +204,7 @@ export default function Profile() {
               {searchResults.map((item) => (
                 <Link key={item.id} to={`/profile/${item.id}`} className="search-row">
                   <div className="search-avatar" style={{ background: item.avatarBg, color: item.avatarColor }}>{item.initials}</div>
-                  <div>
+                  <div className="search-info">
                     <div className="search-name">{item.name}</div>
                     <div className="search-sub">{item.role} · {item.college}</div>
                   </div>
