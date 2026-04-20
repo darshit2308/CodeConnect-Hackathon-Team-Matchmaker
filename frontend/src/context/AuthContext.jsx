@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import API from '../services/api';
 import { useToast } from './ToastContext';
 
@@ -22,7 +22,14 @@ export const AuthProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [globalMatch, setGlobalMatch] = useState(null);
+  const shownMatchNames = useRef(new Set());
   const showToast = useToast();
+
+  const triggerMatchPopup = (name) => {
+    setGlobalMatch(name);
+    showToast(`🎉 You matched with ${name}!`, 'success');
+    shownMatchNames.current.add(name);
+  };
 
   const refreshNotifications = async () => {
     if (!user) return;
@@ -34,28 +41,25 @@ export const AuthProvider = ({ children }) => {
       const newNotifs = res.data;
       
       setNotifications(prev => {
-        // Find if there are new unread match notifications
-        // that weren't in the previous state.
-        if (prev.length > 0) {
-          const prevIds = new Set(prev.map(n => n.id));
-          const freshlyAdded = newNotifs.filter(n => !prevIds.has(n.id) && !n.read && n.type === 'match');
-          
-          if (freshlyAdded.length > 0) {
-            // Show toast for all, but trigger popup for first
-            freshlyAdded.forEach(n => {
+        // Compare with previous notifications to find new matches
+        const prevIds = new Set(prev.map(n => n.id));
+        const freshlyAdded = newNotifs.filter(n => !prevIds.has(n.id) && !n.read && n.type === 'match');
+        
+        if (freshlyAdded.length > 0) {
+          freshlyAdded.forEach(n => {
+            const nameMatch = n.message.replace(' matched with you.', '');
+            if (!shownMatchNames.current.has(nameMatch)) {
+              setGlobalMatch(nameMatch);
               showToast(`🎉 ${n.message}`, 'success');
-            });
-            // Show popup matching UI
-            const nameMatch = freshlyAdded[0].message.replace(' matched with you.', '');
-            setGlobalMatch(nameMatch !== freshlyAdded[0].message ? nameMatch : freshlyAdded[0].message);
-          }
+              shownMatchNames.current.add(nameMatch);
+            }
+          });
         }
         return newNotifs;
       });
       
       setUnreadCount(newNotifs.filter((n) => !n.read).length);
 
-      // Sum unread messages from all conversations
       const totalUnreadMsgs = chatRes.data.reduce((acc, conv) => acc + (conv.unread || 0), 0);
       setUnreadMessages(totalUnreadMsgs);
       
@@ -90,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     let intervalId;
     if (user) {
       refreshNotifications();
-      intervalId = setInterval(refreshNotifications, 10000); // Check every 10s for new matches
+      intervalId = setInterval(refreshNotifications, 5000); // Check every 5s for new matches
     }
     return () => {
       if (intervalId) clearInterval(intervalId);
@@ -148,7 +152,8 @@ export const AuthProvider = ({ children }) => {
       notifications, unreadCount, setUnreadCount, 
       unreadMessages, setUnreadMessages,
       refreshNotifications,
-      likedProfiles, addLikedProfile
+      likedProfiles, addLikedProfile,
+      triggerMatchPopup
     }}>
       {children}
       
@@ -156,15 +161,20 @@ export const AuthProvider = ({ children }) => {
         <div className="match-overlay" onClick={(event) => { if (event.target === event.currentTarget) setGlobalMatch(null); }}>
           <div className="match-card">
             <div className="match-avatars">
-              <div className="m-av my-av" style={{ background: 'var(--primary)', color: 'white' }}>YOU</div>
-              <div className="m-sparkle">+</div>
-              <div className="m-av their-av" style={{ background: 'var(--accent)', color: 'white' }}>{globalMatch.substring(0, 2).toUpperCase()}</div>
+              <div className="m-av my-av" style={{ background: user?.avatarBg || 'var(--primary-soft)', color: user?.avatarColor || 'var(--primary)' }}>{user?.initials || 'YOU'}</div>
+              <div className="m-sparkle">✨</div>
+              <div className="m-av their-av" style={{ background: 'var(--accent-soft, #e6fffb)', color: 'var(--accent)' }}>{globalMatch.substring(0, 2).toUpperCase()}</div>
             </div>
-            <h2 className="match-h2">It's a Match!</h2>
-            <p className="match-sub">{globalMatch} matched with you. Check your messages to say hello!</p>
-            <button className="btn btn-primary w-100 mb-2" onClick={() => {
-              setGlobalMatch(null);
-            }}>Awesome!</button>
+            <h2 className="match-h2">Heeyyy! Got matched!</h2>
+            <p className="match-sub"><strong>{globalMatch}</strong> matched with you. Start a chat and build something amazing together!</p>
+            <div className="match-actions">
+              <button className="btn btn-primary w-100 mb-3" onClick={() => {
+                setGlobalMatch(null);
+                // Optionally navigate to chat
+                window.location.href = '/chat';
+              }}>Start Chat Now</button>
+              <button className="btn btn-ghost w-100" onClick={() => setGlobalMatch(null)} style={{ border: 'none' }}>Awesome!</button>
+            </div>
           </div>
         </div>
       )}

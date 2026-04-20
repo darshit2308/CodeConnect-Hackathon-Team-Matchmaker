@@ -72,13 +72,68 @@ const formatRelativeTime = (dateLike) => {
 };
 
 const calculateMatchPct = (myProfile, profile) => {
-  if (!myProfile || !myProfile.skills?.length || !profile.skills?.length) {
-    return profile.matchPct || 70;
+  // If viewing own profile, return a "Profile Strength" score instead of a match percentage
+  if (myProfile && profile && (myProfile._id.toString() === (profile.user || profile._id).toString())) {
+    let strength = 20; // Base score for having an account
+    if (profile.name) strength += 10;
+    if (profile.role && profile.role !== 'Hackathon Enthusiast') strength += 15;
+    if (profile.college) strength += 10;
+    if (profile.skills?.length > 0) strength += Math.min(25, profile.skills.length * 5);
+    if (profile.idea && profile.idea.length > 20) strength += 20;
+    return Math.min(100, strength);
   }
-  const mySkills = new Set(myProfile.skills.map((s) => s.toLowerCase()));
-  const overlap = profile.skills.filter((s) => mySkills.has(s.toLowerCase())).length;
-  const base = Math.round((overlap / Math.max(profile.skills.length, 1)) * 100);
-  return Math.max(50, Math.min(98, base + 20));
+
+  // Use a deterministic variety factor based on the profile ID
+  const variety = (parseInt(profile._id.toString().slice(-4), 16) % 15);
+  
+  if (!myProfile) return 70 + (variety % 10);
+  
+  let score = 65; // Slightly higher baseline
+
+  const mySkills = (myProfile.skills || []).map(s => s.toLowerCase());
+  const theirSkills = (profile.skills || []).map(s => s.toLowerCase());
+  const myLookingFor = (myProfile.lookingFor || []).map(s => s.toLowerCase());
+  
+  // 1. Skill Alignment
+  if (mySkills.length > 0 && theirSkills.length > 0) {
+    const mySkillsSet = new Set(mySkills);
+    const overlap = theirSkills.filter(s => mySkillsSet.has(s)).length;
+    if (overlap > 0) {
+      score += (overlap / Math.max(mySkills.length, 1)) * 20;
+    }
+  }
+
+  // 2. Requirement Alignment
+  if (myLookingFor.length > 0 && theirSkills.length > 0) {
+    const theirSkillsSet = new Set(theirSkills);
+    const requirementMatches = myLookingFor.filter(s => theirSkillsSet.has(s)).length;
+    score += (requirementMatches / myLookingFor.length) * 20;
+  }
+
+  // 3. Role Complementarity
+  const myRole = (myProfile.role || '').toLowerCase();
+  const theirRole = (profile.role || '').toLowerCase();
+  if (myRole && theirRole) {
+    if (myRole !== theirRole) {
+      score += 8; 
+    } else {
+      score -= 5; // Slight penalty for redundant roles to encourage diversity
+    }
+    
+    if (myLookingFor.includes(theirRole)) {
+      score += 12;
+    }
+  }
+
+  // 4. Common Background
+  if (myProfile.college && profile.college && myProfile.college === profile.college) {
+    score += 4;
+  }
+
+  // 5. Add deterministic variety so it doesn't look static
+  score += (variety / 2);
+
+  return Math.max(58, Math.min(99, Math.round(score)));
 };
 
 const toProfileCard = (profile, myProfile) => ({
@@ -162,7 +217,15 @@ exports.sendOtp = async (req, res) => {
     if (userExists) return res.status(400).json({ error: 'User already exists' });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Rate limiting: Prevent sending multiple OTPs in short succession
+    const lastSent = otpStorage[`lastSent_${email}`];
+    if (lastSent && Date.now() - lastSent < 60000) {
+      return res.status(429).json({ error: 'Please wait 60 seconds before requesting another OTP.' });
+    }
+
     otpStorage[email] = otp;
+    otpStorage[`lastSent_${email}`] = Date.now();
 
     if (process.env.EMAIL_USER === 'REPLACE_WITH_YOUR_GMAIL@gmail.com') {
       console.log(`[TEST MODE] OTP for ${email} is ${otp}`);
@@ -485,32 +548,49 @@ exports.inviteTeamMember = async (req, res) => {
 
 exports.getIdeas = async (req, res) => {
   try {
+    const myProfile = await UserProfile.findOne({ user: req.userId });
+    const mySkills = new Set((myProfile?.skills || []).map(s => s.toLowerCase()));
+
     const ideas = await Idea.find().sort({ createdAt: -1 });
     return res.json(
-      ideas.map((idea) => ({
-        id: idea._id.toString(),
-        title: idea.title,
-        domain: idea.domain,
-        problem: idea.problem,
-        problemStatement: idea.problem,
-        solution: idea.solution,
-        solutionDescription: idea.solution,
-        hackathon: idea.hackathon,
-        skillsNeeded: idea.skillsNeeded,
-        closesIn: idea.closesIn,
-        likes: idea.likes,
-        liked: idea.likedBy?.some((id) => id.toString() === req.userId) || false,
-        posterUser: {
-          id: idea.posterUser?.toString() || null,
-          name: idea.posterName,
-          avatar: idea.posterAvatar
-        },
-        poster: {
-          name: idea.posterName,
-          avatar: idea.posterAvatar,
-          daysAgo: Math.max(0, Math.floor((Date.now() - new Date(idea.createdAt).getTime()) / (24 * 60 * 60 * 1000)))
+      ideas.map((idea) => {
+        const skillsNeeded = Array.isArray(idea.skillsNeeded) ? idea.skillsNeeded : [];
+        let matchPct = 70; // Default
+
+        if (mySkills.size > 0 && skillsNeeded.length > 0) {
+          const matches = skillsNeeded.filter(s => mySkills.has(s.toLowerCase())).length;
+          const ratio = matches / skillsNeeded.length;
+          matchPct = Math.round(65 + (ratio * 34)); // Scales 65% to 99%
+        } else if (mySkills.size > 0) {
+          matchPct = 75; // Some skills but project has no specific requirements
         }
-      }))
+
+        return {
+          id: idea._id.toString(),
+          title: idea.title,
+          domain: idea.domain,
+          problem: idea.problem,
+          problemStatement: idea.problem,
+          solution: idea.solution,
+          solutionDescription: idea.solution,
+          hackathon: idea.hackathon,
+          skillsNeeded,
+          matchPct,
+          closesIn: idea.closesIn,
+          likes: idea.likes,
+          liked: idea.likedBy?.some((id) => id.toString() === req.userId) || false,
+          posterUser: {
+            id: idea.posterUser?.toString() || null,
+            name: idea.posterName,
+            avatar: idea.posterAvatar
+          },
+          poster: {
+            name: idea.posterName,
+            avatar: idea.posterAvatar,
+            daysAgo: Math.max(0, Math.floor((Date.now() - new Date(idea.createdAt).getTime()) / (24 * 60 * 60 * 1000)))
+          }
+        };
+      })
     );
   } catch (err) {
     console.error('Get ideas err:', err);
@@ -723,8 +803,20 @@ exports.sendMessage = async (req, res) => {
 exports.getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ user: req.userId }).sort({ createdAt: -1 });
-    return res.json(
-      notifications.map((item) => ({
+    
+    // Group message notifications by conversation (relatedId)
+    const grouped = [];
+    const seenConversations = new Set();
+
+    for (const item of notifications) {
+      if (item.type === 'message' && item.relatedId) {
+        if (seenConversations.has(item.relatedId)) {
+          continue; // Skip older notifications for the same conversation
+        }
+        seenConversations.add(item.relatedId);
+      }
+      
+      grouped.push({
         id: item._id.toString(),
         type: item.type,
         title: item.title,
@@ -732,8 +824,10 @@ exports.getNotifications = async (req, res) => {
         time: formatRelativeTime(item.createdAt),
         read: item.read,
         actionRequired: item.actionRequired
-      }))
-    );
+      });
+    }
+
+    return res.json(grouped);
   } catch (err) {
     console.error('Get notifications err:', err);
     return res.status(500).json({ error: 'Server error' });
@@ -1027,29 +1121,39 @@ exports.getProjectJoinRequests = async (req, res) => {
     const requests = await JoinRequest.find({ idea: ideaId, status: { $in: ['pending', 'accepted'] } })
       .populate('requester');
 
-    return res.json(
-      requests.map((req) => ({
-        id: req._id.toString(),
-        requesterId: req.requester._id.toString(),
-        requesterName: `${req.requester.firstName} ${req.requester.lastName}`,
-        requesterEmail: req.requester.email,
-        status: req.status
-      }))
-    );
+    const result = [];
+    for (const reqObj of requests) {
+      if (!reqObj.requester) continue;
+      
+      const profile = await UserProfile.findOne({ user: reqObj.requester._id });
+      
+      result.push({
+        id: reqObj._id.toString(),
+        requesterId: reqObj.requester._id.toString(),
+        requesterProfileId: profile ? profile._id.toString() : null,
+        requesterName: `${reqObj.requester.firstName} ${reqObj.requester.lastName}`,
+        requesterEmail: reqObj.requester.email,
+        status: reqObj.status
+      });
+    }
+
+    return res.json(result);
   } catch (err) {
     console.error('Get project join requests err:', err);
     return res.status(500).json({ error: 'Server error' });
   }
 };
 
+
+
 exports.getMutualMatches = async (req, res) => {
   try {
     const myProfile = await UserProfile.findOne({ user: req.userId });
     if (!myProfile) return res.status(404).json({ error: 'Profile not found' });
 
+    // 1. Find Friends (Mutual Right Swipes)
     const myRights = await Swipe.find({ swiper: req.userId, direction: 'right' }).select('targetProfile');
-
-    const matchedProfileIds = [];
+    const friendIds = [];
     for (const swap of myRights) {
       const targetProf = await UserProfile.findById(swap.targetProfile);
       if (targetProf && targetProf.user) {
@@ -1058,37 +1162,47 @@ exports.getMutualMatches = async (req, res) => {
           targetProfile: myProfile._id,
           direction: 'right'
         });
-        if (reciprocal) {
-          matchedProfileIds.push(swap.targetProfile);
-        }
+        if (reciprocal) friendIds.push(swap.targetProfile.toString());
       }
     }
 
-    // Add accepted project members
+    // 2. Find Teammates (Accepted Join Requests)
+    const teammateIds = [];
+    // As requester
     const acceptedRequestsAsRequester = await JoinRequest.find({ requester: req.userId, status: 'accepted' }).populate('idea');
     for (const request of acceptedRequestsAsRequester) {
       if (request.idea && request.idea.posterUser) {
         const posterProf = await UserProfile.findOne({ user: request.idea.posterUser });
-        if (posterProf && !matchedProfileIds.some(id => id.toString() === posterProf._id.toString())) {
-          matchedProfileIds.push(posterProf._id);
-        }
+        if (posterProf) teammateIds.push(posterProf._id.toString());
       }
     }
-
+    // As project owner
     const myIdeas = await Idea.find({ posterUser: req.userId });
     const myIdeaIds = myIdeas.map(i => i._id);
     const acceptedRequestsAsPoster = await JoinRequest.find({ idea: { $in: myIdeaIds }, status: 'accepted' });
     for (const request of acceptedRequestsAsPoster) {
       if (request.requester) {
         const requesterProf = await UserProfile.findOne({ user: request.requester });
-        if (requesterProf && !matchedProfileIds.some(id => id.toString() === requesterProf._id.toString())) {
-          matchedProfileIds.push(requesterProf._id);
-        }
+        if (requesterProf) teammateIds.push(requesterProf._id.toString());
       }
     }
 
-    const matchedProfiles = await UserProfile.find({ _id: { $in: matchedProfileIds } });
-    return res.json(matchedProfiles.map((prof) => toProfileCard(prof, myProfile)));
+    // 3. Merge and Populate
+    const friendSet = new Set(friendIds);
+    const teammateSet = new Set(teammateIds);
+    const allUniqueIds = Array.from(new Set([...friendIds, ...teammateIds]));
+    
+    const matchedProfiles = await UserProfile.find({ _id: { $in: allUniqueIds } });
+    
+    return res.json(matchedProfiles.map((prof) => {
+      const card = toProfileCard(prof, myProfile);
+      const pid = prof._id.toString();
+      return {
+        ...card,
+        isFriend: friendSet.has(pid),
+        isTeammate: teammateSet.has(pid)
+      };
+    }));
   } catch (err) {
     console.error('Get mutual matches err:', err);
     return res.status(500).json({ error: 'Server error' });

@@ -46,8 +46,14 @@ export default function IdeaBoard() {
 
 	const fetchIdeas = async () => {
 		try {
-			const res = await API.getIdeas();
-			setIdeas((res.data || []).map(normalizeIdea).filter((idea) => idea.posterUser?.id !== user?.id));
+			const [ideasRes, participatedRes] = await Promise.all([
+				API.getIdeas(),
+				API.getParticipatedProjects()
+			]);
+			const participatedIds = new Set((participatedRes.data || []).map(p => p.id));
+			setIdeas((ideasRes.data || []).map(normalizeIdea).filter((idea) => 
+				idea.posterUser?.id !== user?.id && !participatedIds.has(idea.id)
+			));
 		} catch (err) {
 			console.error('Error fetching ideas:', err);
 		}
@@ -339,13 +345,22 @@ export default function IdeaBoard() {
 										<div className="chip-row" style={{ marginBottom: '16px' }}>
 											{idea.skillsNeeded.slice(0, 3).map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)}
 										</div>
-										<button 
-											className="btn btn-ghost small-btn" 
-											onClick={() => alert('Edit project details feature coming soon!')}
-											style={{ border: '1px solid var(--border)', width: 'auto' }}
-										>
-											Edit Details
-										</button>
+										<div style={{ display: 'flex', gap: '8px' }}>
+											<button 
+												className="btn btn-ghost small-btn" 
+												onClick={() => setViewProject(idea)}
+												style={{ border: '1px solid var(--border)', width: 'auto' }}
+											>
+												View Project
+											</button>
+											<button 
+												className="btn btn-ghost small-btn" 
+												onClick={() => alert('Edit project details feature coming soon!')}
+												style={{ border: '1px solid var(--border)', width: 'auto' }}
+											>
+												Edit Details
+											</button>
+										</div>
 									</Card>
 
 									<div className="requests-list" style={{ marginTop: '12px' }}>
@@ -370,6 +385,9 @@ export default function IdeaBoard() {
 															<span className="mc-status red" style={{ fontWeight: 800, color: 'var(--danger)' }}>Rejected</span>
 														) : (
 															<div style={{ display: 'flex', gap: '8px' }}>
+																{request.requesterProfileId && (
+																	<button className="btn btn-ghost" onClick={() => window.location.href = `/profile/${request.requesterProfileId}`}>View Profile</button>
+																)}
 																<button className="btn btn-ghost danger" onClick={() => handleRejectProjectRequest(idea.id, request.id)}>Reject</button>
 																<button className="btn btn-primary" onClick={() => handleAcceptProjectRequest(idea.id, request.id)}>Accept</button>
 															</div>
@@ -463,10 +481,7 @@ export default function IdeaBoard() {
 							</div>
 
 							<div className="vp-actions" style={{ display: 'flex', gap: '12px' }}>
-								<button className="btn btn-ghost" style={{ flex: 1, padding: '14px' }} onClick={() => setViewProject(null)}>Close</button>
-								<button className={`btn btn-primary ${hasPending(viewProject.id) ? 'requested' : ''}`} style={{ flex: 2, padding: '14px', fontSize: '16px' }} onClick={() => (hasPending(viewProject.id) ? null : handleJoinTeam(viewProject))} disabled={hasPending(viewProject.id)}>
-									{hasPending(viewProject.id) ? 'Join Request Sent ✅' : 'Send Join Request'}
-								</button>
+								<button className="btn btn-primary" style={{ flex: 1, padding: '14px' }} onClick={() => setViewProject(null)}>Close</button>
 							</div>
 						</div>
 					</div>

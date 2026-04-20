@@ -38,14 +38,12 @@ export default function Discover() {
   const [role, setRole] = useState('All');
   const [matchPct, setMatchPct] = useState(50);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showMatch, setShowMatch] = useState(false);
-  const [matchedProfile, setMatchedProfile] = useState(null);
   const [showStatus, setShowStatus] = useState(false);
   const [swipeAnimation, setSwipeAnimation] = useState(null); // 'left' | 'right' | 'super' | null
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [whoLikedMeCount, setWhoLikedMeCount] = useState(0);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, triggerMatchPopup } = useAuth();
 
   // ---- Drag/Swipe gesture state ----
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -116,9 +114,30 @@ export default function Discover() {
     return [];
   }, [myProjects, discoverSubsection, selectedProjectId]);
 
+  // NEW: Calculate project-specific match scores when in 'My Project' mode
+  const profilesWithContextualMatch = useMemo(() => {
+    if (discoverSubsection !== 'myproject' || !selectedProjectId) return allProfiles;
+    
+    const proj = myProjects.find(p => p.id === selectedProjectId);
+    if (!proj || !(proj.skillsNeeded || []).length) return allProfiles;
+    
+    const neededSkills = new Set(proj.skillsNeeded.map(s => s.toLowerCase()));
+    
+    return allProfiles.map(profile => {
+      const theirSkills = (profile.skills || []).map(s => s.toLowerCase());
+      const matches = theirSkills.filter(s => neededSkills.has(s)).length;
+      
+      // Calculate a project-specific match percentage
+      const ratio = matches / Math.max(proj.skillsNeeded.length, 1);
+      const projectMatchPct = Math.round(65 + (ratio * 34)); 
+      
+      return { ...profile, matchPct: projectMatchPct };
+    });
+  }, [allProfiles, discoverSubsection, selectedProjectId, myProjects]);
+
   // Filter profiles based on current subsection and filters
   const filteredProfiles = useMemo(() => {
-    let next = [...allProfiles];
+    let next = [...profilesWithContextualMatch];
 
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
@@ -135,10 +154,10 @@ export default function Discover() {
 
     next = next.filter((profile) => (profile.matchPct ?? 0) >= Number(matchPct));
 
-    // For My Project subsection, filter by project skills
+    // For My Project subsection, filter by project skills (must have at least one match)
     if (discoverSubsection === 'myproject') {
       if (projectSkills.length === 0) {
-        return []; // No projects = no profiles to show
+        return []; 
       }
       next = next.filter((profile) =>
         (profile.skills || []).some((skill) =>
@@ -148,7 +167,7 @@ export default function Discover() {
     }
 
     return next;
-  }, [allProfiles, searchTerm, role, matchPct, discoverSubsection, projectSkills]);
+  }, [profilesWithContextualMatch, searchTerm, role, matchPct, discoverSubsection, projectSkills]);
 
   // Update profiles state whenever filters change
   useEffect(() => {
@@ -190,8 +209,7 @@ export default function Discover() {
           const swipeRes = await API.swipeRight(profile.id, activeContext);
 
           if (swipeRes.data?.match) {
-            setMatchedProfile(profile);
-            setShowMatch(true);
+            triggerMatchPopup(profile.name);
           }
         }
       } else {
@@ -624,22 +642,6 @@ export default function Discover() {
           </div>
         )}
       </div>
-
-      {showMatch && matchedProfile && (
-        <div className="match-overlay" onClick={(event) => { if (event.target === event.currentTarget) setShowMatch(false); }}>
-          <div className="match-card">
-            <div className="match-avatars">
-              <div className="m-av my-av" style={{ background: user?.avatarBg, color: user?.avatarColor }}>{user?.initials}</div>
-              <div className="m-sparkle">+</div>
-              <div className="m-av their-av" style={{ background: matchedProfile.avatarBg, color: matchedProfile.avatarColor }}>{matchedProfile.initials}</div>
-            </div>
-            <h2 className="match-h2">It's a Match!</h2>
-            <p className="match-sub">You and {matchedProfile.name} both swiped right. Say hello!</p>
-            <button className="btn btn-primary w-100 mb-2" onClick={() => navigate(`/chat?user=${matchedProfile.id}`)}>Start Conversation</button>
-            <button className="btn btn-ghost w-100" onClick={() => setShowMatch(false)} style={{ border: 'none' }}>Keep Browsing</button>
-          </div>
-        </div>
-      )}
 
     </div>
   );

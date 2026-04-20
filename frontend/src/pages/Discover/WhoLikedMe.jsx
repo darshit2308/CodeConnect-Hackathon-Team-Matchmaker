@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getWhoLikedMe, swipeRight, swipeLeft } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './WhoLikedMe.css';
 
 const WhoLikedMe = () => {
@@ -23,12 +24,15 @@ const WhoLikedMe = () => {
     }
   };
 
+  const { triggerMatchPopup } = useAuth();
+
   const handleSwipe = async (profileId, direction) => {
     try {
       if (direction === 'right') {
+        const profile = profiles.find(p => p.id === profileId);
         const { data } = await swipeRight(profileId, 'general');
         if (data.match) {
-          alert("It's a Match!");
+          triggerMatchPopup(profile?.name || 'Someone');
         }
       } else {
         await swipeLeft(profileId, 'general');

@@ -215,13 +215,12 @@ export default function TeamDashboard() {
           })}
         </div>
       )}
-
-      {/* Team Members (Mutual Matches) */}
+      {/* Project Teammates (Matched via Projects) */}
       <div className="td-grid">
         <div className="td-main">
           <h3 className="mb-4">My Teammates</h3>
           <div className="members-grid">
-            {mutualMatches.map(m => (
+            {mutualMatches.filter(m => m.isTeammate).map(m => (
               <Card key={m.id} className="member-card">
                 <div className="mc-avatar" style={{ background: m.avatarBg || 'var(--primary-soft)', color: m.avatarColor || 'var(--primary)' }}>
                   {m.initials || 'U'}
@@ -231,7 +230,7 @@ export default function TeamDashboard() {
                 <div className="chip-row center mb-3">
                   {(m.skills || []).slice(0, 3).map(s => <SkillChip key={s} label={s} readonly size="small" />)}
                 </div>
-                <div className="mc-status green">Matched</div>
+                <div className="mc-status green">Teammate</div>
                 <div className="gc-actions" style={{ marginTop: '12px' }}>
                   <button className="btn btn-ghost small-btn" onClick={() => navigate(`/profile/${m.id}`)}>View</button>
                   <button className="btn btn-primary small-btn" onClick={() => navigate(`/chat?user=${m.id}`)}>Chat</button>
@@ -240,12 +239,12 @@ export default function TeamDashboard() {
             ))}
             <Card className="add-member-card" onClick={() => navigate('/discover')}>
               <div className="add-icon">+</div>
-              <div>Add Teammate</div>
+              <div>Find More</div>
             </Card>
           </div>
-          {mutualMatches.length === 0 && (
+          {mutualMatches.filter(m => m.isTeammate).length === 0 && (
             <div className="empty-state" style={{ marginTop: '20px' }}>
-              <p>No mutual matches yet. Swipe right on profiles in Discover to build your team!</p>
+              <p>No project teammates yet. Accept join requests or join other projects to see teammates here!</p>
             </div>
           )}
         </div>

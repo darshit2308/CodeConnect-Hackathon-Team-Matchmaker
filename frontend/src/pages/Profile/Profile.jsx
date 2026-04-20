@@ -111,7 +111,7 @@ export default function Profile() {
               <div className="meta-item">
                 <i className="fas fa-bolt"></i>
                 <div className="meta-info">
-                  <span>Match Score</span>
+                  <span>{isSelf ? 'Profile Strength' : 'Match Score'}</span>
                   <strong>{profile.matchPct}%</strong>
                 </div>
               </div>
