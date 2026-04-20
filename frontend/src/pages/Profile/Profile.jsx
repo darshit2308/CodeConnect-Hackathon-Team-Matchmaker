@@ -97,16 +97,19 @@ export default function Profile() {
       <div className="profile-shell">
         <div className="profile-left">
           <Card className="profile-main-card">
-            <div className="profile-banner"></div>
+            <div className="profile-banner">
+              <div className="profile-title-area">
+                <h2>{profile.name}</h2>
+                <div className="profile-role-badge">{profile.role}</div>
+              </div>
+            </div>
             <div className="profile-head">
               <div className="profile-avatar-container">
                 <div className="profile-avatar" style={{ background: profile.avatarBg, color: profile.avatarColor }}>
                   {profile.initials}
                 </div>
               </div>
-              <div className="profile-title-area">
-                <h2>{profile.name}</h2>
-                <div className="profile-role-badge">{profile.role}</div>
+              <div className="profile-sub-area">
                 <div className="profile-college">
                   <i className="fas fa-university"></i>
                   {profile.college || 'College Enthusiast'}
