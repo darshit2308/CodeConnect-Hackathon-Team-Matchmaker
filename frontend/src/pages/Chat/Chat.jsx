@@ -57,6 +57,33 @@ export default function Chat() {
     }
   }, [messages, isTyping]);
 
+  // Auto-refresh chat every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      // re-fetch conversations
+      try {
+        const res = await API.get('/chat/conversations');
+        setConversations(res.data);
+      } catch(err) {}
+
+      // if a chat is active, re-fetch messages
+      if (activeChatId) {
+        try {
+          const res = await API.get(`/chat/${activeChatId}`);
+          // Update messages only if there is a change to prevent re-renders breaking scroll
+          setMessages(prev => {
+            if (prev.length !== res.data.length || JSON.stringify(prev) !== JSON.stringify(res.data)) {
+              return res.data;
+            }
+            return prev;
+          });
+        } catch(err) {}
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [activeChatId]);
+
   const loadChat = async (chatId) => {
     setActiveChatId(chatId);
     setMessages([]);

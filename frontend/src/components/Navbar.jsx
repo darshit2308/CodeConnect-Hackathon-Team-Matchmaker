@@ -5,7 +5,7 @@ import Logo from './Logo';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { user, unreadCount, logout } = useAuth();
+  const { user, unreadCount, unreadMessages, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,7 +24,10 @@ export default function Navbar() {
           <NavLink to="/friends" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Friends</NavLink>
           <NavLink to="/team-dashboard" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>My Team</NavLink>
           <NavLink to="/idea-board" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Projects</NavLink>
-          <NavLink to="/chat" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Messages</NavLink>
+          <NavLink to="/chat" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} style={{ position: 'relative' }}>
+            Messages
+            {unreadMessages > 0 && <span className="msg-badge"></span>}
+          </NavLink>
           <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Profile</NavLink>
         </div>
       )}

@@ -565,6 +565,12 @@ exports.getConversations = async (req, res) => {
       const partnerProfile = await UserProfile.findOne({ user: partnerId });
       if (!partnerUser) continue;
 
+      const unreadCount = await Message.countDocuments({
+        conversation: conversation._id,
+        sender: partnerId,
+        read: false
+      });
+
       result.push({
         id: conversation._id.toString(),
         partner: {
@@ -575,7 +581,7 @@ exports.getConversations = async (req, res) => {
         },
         lastMessage: conversation.lastMessage || '',
         timestamp: formatRelativeTime(conversation.lastMessageAt),
-        unread: 0,
+        unread: unreadCount,
         type: conversation.type
       });
     }
@@ -610,9 +616,15 @@ exports.startConversation = async (req, res) => {
 
 exports.getChatHistory = async (req, res) => {
   try {
-    const conversationId = req.params.userId;
+    const conversationId = req.params.userId; // NOTE: parameter is actually conversationId based on logic below
     const conversation = await Conversation.findOne({ _id: conversationId, participants: req.userId });
     if (!conversation) return res.status(404).json({ error: 'Conversation not found' });
+
+    // Mark partner's unread messages as read
+    await Message.updateMany(
+      { conversation: conversation._id, sender: { $ne: req.userId }, read: false },
+      { $set: { read: true } }
+    );
 
     const messages = await Message.find({ conversation: conversation._id }).sort({ createdAt: 1 });
     return res.json(

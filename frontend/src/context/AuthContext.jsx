@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../services/api';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext();
 
@@ -17,15 +18,40 @@ export const AuthProvider = ({ children }) => {
   });
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const showToast = useToast();
 
   const refreshNotifications = async () => {
     if (!user) return;
     try {
-      const res = await API.get('/notifications');
-      setNotifications(res.data);
-      setUnreadCount(res.data.filter((n) => !n.read).length);
+      const [res, chatRes] = await Promise.all([
+        API.get('/notifications'),
+        API.get('/chat/conversations')
+      ]);
+      const newNotifs = res.data;
+      
+      setNotifications(prev => {
+        // Find if there are new unread match notifications
+        // that weren't in the previous state.
+        if (prev.length > 0) {
+          const prevIds = new Set(prev.map(n => n.id));
+          const freshlyAdded = newNotifs.filter(n => !prevIds.has(n.id) && !n.read && n.type === 'match');
+          
+          freshlyAdded.forEach(n => {
+            showToast(`🎉 ${n.message}`, 'success');
+          });
+        }
+        return newNotifs;
+      });
+      
+      setUnreadCount(newNotifs.filter((n) => !n.read).length);
+
+      // Sum unread messages from all conversations
+      const totalUnreadMsgs = chatRes.data.reduce((acc, conv) => acc + (conv.unread || 0), 0);
+      setUnreadMessages(totalUnreadMsgs);
+      
     } catch (err) {
-      console.error(err);
+      console.error('Error refreshing notifications/chat:', err);
     }
   };
 
@@ -52,9 +78,14 @@ export const AuthProvider = ({ children }) => {
   }, [likedProfiles]);
 
   useEffect(() => {
+    let intervalId;
     if (user) {
       refreshNotifications();
+      intervalId = setInterval(refreshNotifications, 10000); // Check every 10s for new matches
     }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [user]);
 
   const login = async (email, password) => {
@@ -96,15 +127,18 @@ export const AuthProvider = ({ children }) => {
     setLikedProfiles([]);
     setNotifications([]);
     setUnreadCount(0);
+    setUnreadMessages(0);
     localStorage.removeItem('cc_token');
     localStorage.removeItem('cc_user');
     localStorage.removeItem('cc_liked');
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, setUser, login, sendOtp, verifyOtpAndSignup, googleLogin, logout, 
-      notifications, unreadCount, setUnreadCount, refreshNotifications,
+    <AuthContext.Provider value={{
+      user, setUser, login, sendOtp, verifyOtpAndSignup, googleLogin, logout,
+      notifications, unreadCount, setUnreadCount, 
+      unreadMessages, setUnreadMessages,
+      refreshNotifications,
       likedProfiles, addLikedProfile
     }}>
       {children}

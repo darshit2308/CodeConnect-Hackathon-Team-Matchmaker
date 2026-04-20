@@ -325,7 +325,7 @@ export default function Discover() {
           >
             <span className="tab-icon">All</span>
             <span className="tab-label">General</span>
-            <span className="tab-desc">Find friends & teammates</span>
+            <span className="tab-desc">Find friends</span>
           </button>
           <button
             className={`discover-tab ${discoverSubsection === 'myproject' ? 'active' : ''}`}
