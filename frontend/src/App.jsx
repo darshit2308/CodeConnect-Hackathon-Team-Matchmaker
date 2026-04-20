@@ -14,6 +14,7 @@ import Notifications from './pages/Notifications/Notifications';
 import Admin from './pages/Admin/Admin';
 import Profile from './pages/Profile/Profile';
 import Friends from './pages/Friends/Friends';
+import WhoLikedMe from './pages/Discover/WhoLikedMe';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './context/ToastContext';
 
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
               <Route path="/idea-board" element={<ProtectedRoute><IdeaBoard /></ProtectedRoute>} />
               <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+              <Route path="/who-liked-me" element={<ProtectedRoute><WhoLikedMe /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />

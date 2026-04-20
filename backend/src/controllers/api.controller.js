@@ -1055,3 +1055,34 @@ exports.getMutualMatches = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+exports.getWhoLikedMe = async (req, res) => {
+  try {
+    const myProfile = await UserProfile.findOne({ user: req.userId });
+    if (!myProfile) return res.status(404).json({ error: 'Profile not found' });
+
+    // Find all right swipes where I am the target
+    const likesMeSwipes = await Swipe.find({ targetProfile: myProfile._id, direction: 'right' }).populate('swiper');
+
+    // Find all my swipes so we can filter out people I've already swiped on
+    const mySwipes = await Swipe.find({ swiper: req.userId }).select('targetProfile');
+    const mySwipedProfileIds = new Set(mySwipes.map((s) => s.targetProfile.toString()));
+
+    const resultProfiles = [];
+    for (const swipe of likesMeSwipes) {
+      if (!swipe.swiper) continue;
+      
+      const swiperProfile = await UserProfile.findOne({ user: swipe.swiper._id });
+      if (!swiperProfile) continue;
+
+      // Only show if I haven't swiped on them yet
+      if (!mySwipedProfileIds.has(swiperProfile._id.toString())) {
+        resultProfiles.push(toProfileCard(swiperProfile, myProfile));
+      }
+    }
+
+    return res.json(resultProfiles);
+  } catch (err) {
+    console.error('Get who liked me err:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};

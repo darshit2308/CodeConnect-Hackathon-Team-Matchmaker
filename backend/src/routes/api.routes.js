@@ -20,6 +20,7 @@ router.get('/profiles/search', apiController.searchProfiles);
 router.post('/profiles/like', apiController.likeProfile);
 router.post('/profiles/unlike', apiController.unlikeProfile);
 router.get('/profiles/liked', apiController.getLikedProfiles);
+router.get('/profiles/who-liked-me', apiController.getWhoLikedMe);
 
 // PROFILES & MATCHING (parameterized route must come after specific routes)
 router.get('/profiles', apiController.getProfiles);

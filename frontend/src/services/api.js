@@ -29,6 +29,7 @@ export const setupProfile = (data) => API.post('/auth/profile-setup', data);
 export const likeProfile = (profileId) => API.post('/profiles/like', { profileId });
 export const unlikeProfile = (profileId) => API.post('/profiles/unlike', { profileId });
 export const getLikedProfiles = () => API.get('/profiles/liked');
+export const getWhoLikedMe = () => API.get('/profiles/who-liked-me');
 
 // MATCHING
 export const getMutualMatches = () => API.get('/matches/mutual');

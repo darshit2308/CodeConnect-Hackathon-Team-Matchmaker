@@ -106,20 +106,47 @@ export default function Profile() {
               </div>
               <div className="profile-title-area">
                 <h2>{profile.name}</h2>
-                <p className="profile-role-badge">{profile.role}</p>
-                {profile.college && <p className="profile-college">🎓 {profile.college}</p>}
+                <div className="profile-role-badge">{profile.role}</div>
+                <div className="profile-college">
+                  <i className="fas fa-university"></i>
+                  {profile.college || 'College Enthusiast'}
+                </div>
               </div>
             </div>
 
             <div className="profile-meta-grid">
-              <div className="meta-item"><span>Match Score</span><strong>{profile.matchPct}%</strong></div>
-              <div className="meta-item"><span>Hackathons</span><strong>{profile.hackathonsCount}</strong></div>
-              <div className="meta-item"><span>Team Size</span><strong>{profile.teamSize || 'Not set'}</strong></div>
-              <div className="meta-item"><span>Email</span><strong>{profile.email || 'Hidden'}</strong></div>
+              <div className="meta-item">
+                <i className="fas fa-bolt"></i>
+                <div className="meta-info">
+                  <span>Match Score</span>
+                  <strong>{profile.matchPct}%</strong>
+                </div>
+              </div>
+              <div className="meta-item">
+                <i className="fas fa-trophy"></i>
+                <div className="meta-info">
+                  <span>Hackathons</span>
+                  <strong>{profile.hackathonsCount}</strong>
+                </div>
+              </div>
+              <div className="meta-item">
+                <i className="fas fa-users"></i>
+                <div className="meta-info">
+                  <span>Team Size</span>
+                  <strong>{profile.teamSize || 'Not set'}</strong>
+                </div>
+              </div>
+              <div className="meta-item">
+                <i className="fas fa-envelope"></i>
+                <div className="meta-info">
+                  <span>Email</span>
+                  <strong>{profile.email || 'Hidden'}</strong>
+                </div>
+              </div>
             </div>
 
             <section className="profile-section">
-              <h4>Skills</h4>
+              <h4><i className="fas fa-star"></i> Skills</h4>
               <div className="chip-row">
                 {(profile.skills || []).length > 0
                   ? profile.skills.map((skill) => <SkillChip key={skill} label={skill} readonly size="small" />)
@@ -128,7 +155,7 @@ export default function Profile() {
             </section>
 
             <section className="profile-section">
-              <h4>Looking For</h4>
+              <h4><i className="fas fa-search"></i> Looking For</h4>
               <div className="chip-row">
                 {(profile.lookingFor || []).length > 0
                   ? profile.lookingFor.map((item) => <SkillChip key={item} label={item} readonly size="small" />)
@@ -137,18 +164,18 @@ export default function Profile() {
             </section>
 
             <section className="profile-section">
-              <h4>Current Idea</h4>
-              <p>{profile.idea || 'No idea description yet.'}</p>
+              <h4><i className="fas fa-lightbulb"></i> Current Idea</h4>
+              <p className="idea-text">{profile.idea || 'No idea description yet.'}</p>
             </section>
 
             <section className="profile-section">
-              <h4>Previous Projects</h4>
+              <h4><i className="fas fa-history"></i> Previous Projects</h4>
               {(profile.previousProjects || []).length > 0 ? (
                 <ul className="project-list">
                   {profile.previousProjects.map((project, idx) => <li key={idx}>{project}</li>)}
                 </ul>
               ) : (
-                <p>No previous projects listed.</p>
+                <p className="empty-hint">No previous projects listed.</p>
               )}
             </section>
 
@@ -158,10 +185,18 @@ export default function Profile() {
                   className={`btn ${isLiked ? 'btn-ghost liked' : 'btn-primary'}`}
                   onClick={isLiked ? handleUnlikeProfile : handleLikeProfile}
                 >
+                  <i className={isLiked ? 'fas fa-heart' : 'far fa-heart'}></i>
                   {isLiked ? 'Liked' : 'Like'}
                 </button>
-                <button className="btn btn-primary" onClick={() => navigate(`/chat?user=${profile.id}`)}>Message</button>
-                <Link className="btn btn-ghost" to="/profile">My Profile</Link>
+                <button className="btn btn-primary" onClick={() => navigate(`/chat?user=${profile.id}`)}>
+                  <i className="fas fa-comment"></i> Message
+                </button>
+              </div>
+            )}
+
+            {isSelf && (
+              <div className="profile-actions-self">
+                 <Link className="btn btn-primary" to="/profile-setup">Edit Profile</Link>
               </div>
             )}
 
