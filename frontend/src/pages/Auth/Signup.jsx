@@ -116,20 +116,6 @@ export default function Signup() {
             <h2 style={{ fontSize: '28px', marginBottom: '8px' }}>Join CodeConnect</h2>
             <p style={{ color: 'var(--ink2)', marginBottom: '32px' }}>Create an account to get started.</p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => showToast('Login Failed', 'error')}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-              />
-            </div>
-
-            <div className="auth-divider">
-              <span className="line"></span><span className="text">or</span><span className="line"></span>
-            </div>
-
             {step === 0 ? (
               <form onSubmit={handleSignupStage1}>
                 <div className="form-row">

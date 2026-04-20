@@ -91,22 +91,6 @@ export default function Login() {
             <h2 style={{fontSize:'28px', marginBottom:'8px'}}>Welcome back</h2>
             <p style={{color:'var(--ink2)', marginBottom:'32px'}}>Sign in to find your hackathon team.</p>
 
-            <div style={{display:'flex', justifyContent:'center', marginBottom: '12px'}}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => showToast('Login Failed', 'error')}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-              />
-            </div>
-
-            <div className="auth-divider">
-              <span className="line"></span>
-              <span className="text">or</span>
-              <span className="line"></span>
-            </div>
-
             <form onSubmit={handleLogin}>
               <div className="form-group">
                 <label>Email</label>
