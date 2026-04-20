@@ -194,15 +194,9 @@ export default function Profile() {
               </div>
             )}
 
-            {isSelf && (
-              <div className="profile-actions-self">
-                 <Link className="btn btn-primary" to="/profile-setup">Edit Profile</Link>
-              </div>
-            )}
-
             {isSelf && mutualFriends.length > 0 && (
               <section className="profile-section">
-                <h4>Your Mutual Friends ({mutualFriends.length})</h4>
+                <h4>Your Friends ({mutualFriends.length})</h4>
                 <div className="friends-mini-list">
                   {mutualFriends.slice(0, 5).map(friend => (
                     <Link 
