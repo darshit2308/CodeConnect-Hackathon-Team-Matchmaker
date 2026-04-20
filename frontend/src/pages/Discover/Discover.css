@@ -287,6 +287,19 @@
 .sc-idea {
   background: white; border-left: 3px solid var(--primary);
   padding: 12px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 20px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.sc-idea::-webkit-scrollbar {
+  width: 5px;
+}
+.sc-idea::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sc-idea::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 10px;
 }
 
 .sc-section { margin-bottom: 20px; }

@@ -428,7 +428,7 @@ export default function IdeaBoard() {
 							<button className="modal-close" onClick={() => setViewProject(null)} style={{ color: 'white', background: 'rgba(0,0,0,0.2)', top: '16px', right: '16px' }}>×</button>
 							<div className="vp-domain-badge" style={{ position: 'absolute', bottom: '16px', left: '32px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: 'white', padding: '6px 12px', borderRadius: '20px', fontWeight: 600, fontSize: '13px' }}>{viewProject.domain}</div>
 						</div>
-						<div className="vp-content" style={{ padding: '32px' }}>
+						<div className="vp-content hide-scrollbars" style={{ padding: '32px', overflowY: 'auto', maxHeight: 'calc(90vh - 140px)' }}>
 							<h2 style={{ fontSize: '28px', marginBottom: '24px', lineHeight: '1.2' }}>{viewProject.title}</h2>
 							
 							<div className="vp-poster-info" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', padding: '16px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '16px' }}>
