@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../services/api';
 import { useToast } from './ToastContext';
 
+import { useNavigate } from 'react-router-dom';
+
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -19,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [globalMatch, setGlobalMatch] = useState(null);
   const showToast = useToast();
 
   const refreshNotifications = async () => {
@@ -37,9 +40,15 @@ export const AuthProvider = ({ children }) => {
           const prevIds = new Set(prev.map(n => n.id));
           const freshlyAdded = newNotifs.filter(n => !prevIds.has(n.id) && !n.read && n.type === 'match');
           
-          freshlyAdded.forEach(n => {
-            showToast(`🎉 ${n.message}`, 'success');
-          });
+          if (freshlyAdded.length > 0) {
+            // Show toast for all, but trigger popup for first
+            freshlyAdded.forEach(n => {
+              showToast(`🎉 ${n.message}`, 'success');
+            });
+            // Show popup matching UI
+            const nameMatch = freshlyAdded[0].message.replace(' matched with you.', '');
+            setGlobalMatch(nameMatch !== freshlyAdded[0].message ? nameMatch : freshlyAdded[0].message);
+          }
         }
         return newNotifs;
       });
@@ -142,6 +151,23 @@ export const AuthProvider = ({ children }) => {
       likedProfiles, addLikedProfile
     }}>
       {children}
+      
+      {globalMatch && (
+        <div className="match-overlay" onClick={(event) => { if (event.target === event.currentTarget) setGlobalMatch(null); }}>
+          <div className="match-card">
+            <div className="match-avatars">
+              <div className="m-av my-av" style={{ background: 'var(--primary)', color: 'white' }}>YOU</div>
+              <div className="m-sparkle">+</div>
+              <div className="m-av their-av" style={{ background: 'var(--accent)', color: 'white' }}>{globalMatch.substring(0, 2).toUpperCase()}</div>
+            </div>
+            <h2 className="match-h2">It's a Match!</h2>
+            <p className="match-sub">{globalMatch} matched with you. Check your messages to say hello!</p>
+            <button className="btn btn-primary w-100 mb-2" onClick={() => {
+              setGlobalMatch(null);
+            }}>Awesome!</button>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 };
