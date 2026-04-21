@@ -17,6 +17,7 @@ import Friends from './pages/Friends/Friends';
 import WhoLikedMe from './pages/Discover/WhoLikedMe';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider } from './context/ToastContext';
+import { Analytics } from '@vercel/analytics/react';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -52,6 +53,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
+          <Analytics />
         </BrowserRouter>
       </AuthProvider>
     </ToastProvider>
