@@ -47,7 +47,11 @@ export const AuthProvider = ({ children }) => {
         
         if (freshlyAdded.length > 0) {
           freshlyAdded.forEach(n => {
-            const nameMatch = n.message.replace(' matched with you.', '');
+            // Support both: "X matched with you." and "You matched with X."
+            const nameMatch = n.message
+              .replace(' matched with you.', '')
+              .replace('You matched with ', '');
+            
             if (!shownMatchNames.current.has(nameMatch)) {
               setGlobalMatch(nameMatch);
               showToast(`🎉 ${n.message}`, 'success');
@@ -59,7 +63,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       setUnreadCount(newNotifs.filter((n) => !n.read).length);
-
       const totalUnreadMsgs = chatRes.data.reduce((acc, conv) => acc + (conv.unread || 0), 0);
       setUnreadMessages(totalUnreadMsgs);
       
